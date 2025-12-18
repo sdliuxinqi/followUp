@@ -1,0 +1,114 @@
+<!--pages/doctor/plan/detail/detail.wxml-->
+<view class="page-container">
+  
+  <!-- 计划信息头部卡片 -->
+  <view class="plan-header-card">
+    <view class="plan-title-row">
+      <view class="plan-title">{{plan.title}}</view>
+      <view class="settings-button" bindtap="showSettingsMenu">⚙</view>
+    </view>
+    <view class="plan-stats-row">
+      <view class="stat-item">
+        <text class="stat-text">{{plan.participantCount}}人参与</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-text">{{plan.createdAt}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 基本信息 -->
+  <view class="section-header">
+    <view class="section-title">基本信息</view>
+  </view>
+
+  <view class="info-card">
+    <view class="info-item">
+      <view class="info-label">计划名称</view>
+      <view class="info-value">{{plan.title}}</view>
+    </view>
+
+    <view class="info-item">
+      <view class="info-label">创建时间</view>
+      <view class="info-value">{{plan.createdAt}}</view>
+    </view>
+
+    <view class="info-item">
+      <view class="info-label">随访时间</view>
+      <view class="info-value">{{plan.timeLabel}}</view>
+    </view>
+  </view>
+
+  <!-- 随访二维码 -->
+  <view class="section-header">
+    <view class="section-title">患者扫码</view>
+  </view>
+
+  <view class="qrcode-card">
+    <view class="qrcode-wrapper" bindtap="showQRCode">
+      <image class="qrcode" src="{{qrcodeUrl}}" mode="aspectFit" />
+    </view>
+    <view class="qrcode-hint">点击二维码可放大查看</view>
+  </view>
+
+  <!-- 参与患者列表 -->
+  <view class="section-header">
+    <view class="section-title">参与患者</view>
+    <view class="section-count" wx:if="{{participants.length > 0}}">{{participants.length}}人</view>
+  </view>
+
+  <view class="participants-card">
+    <block wx:if="{{participants.length > 0}}">
+      <view class="participant-item" wx:for="{{participants}}" wx:key="id" bindtap="viewPatientRecord" data-id="{{item.id}}">
+        <view class="patient-info">
+          <view class="patient-name">{{item.name}}</view>
+          <view class="patient-meta">
+            <text class="fill-time">{{item.fillTime}}</text>
+          </view>
+        </view>
+        <view class="arrow-icon">›</view>
+      </view>
+    </block>
+    <block wx:else>
+      <view class="empty-state">
+        <text class="empty-text">暂无患者参与</text>
+        <text class="empty-hint">分享二维码邀请患者参与随访</text>
+      </view>
+    </block>
+  </view>
+</view>
+
+<!-- 设置菜单弹窗 -->
+<view class="settings-menu-mask" wx:if="{{showSettingsMenu}}" bindtap="hideSettingsMenu">
+  <view class="settings-menu" catchtap="preventClose">
+    <view class="menu-item" bindtap="editPlan">
+      <text class="menu-text">编辑计划</text>
+    </view>
+    <view class="menu-item" bindtap="sharePlan">
+      <text class="menu-text">分享计划</text>
+    </view>
+    <view class="menu-item discard-item" bindtap="discardPlan">
+      <text class="menu-text">废弃计划</text>
+    </view>
+    <view class="menu-item cancel-item" bindtap="hideSettingsMenu">
+      <text class="menu-text">取消</text>
+    </view>
+  </view>
+</view>
+
+<!-- 二维码放大弹窗 -->
+<view class="qrcode-modal" wx:if="{{showQRCodeModal}}" bindtap="hideQRCode">
+  <view class="qrcode-modal-content" catchtap="preventClose">
+    <view class="qrcode-modal-header">
+      <text class="qrcode-modal-title">随访二维码</text>
+      <view class="qrcode-modal-close" bindtap="hideQRCode">✕</view>
+    </view>
+    <view class="qrcode-modal-body">
+      <image class="qrcode-large" src="{{qrcodeUrl}}" mode="aspectFit" />
+      <view class="qrcode-modal-hint">患者扫描二维码即可填写随访</view>
+    </view>
+    <view class="qrcode-modal-footer">
+      <button class="save-qrcode-button" bindtap="saveQRCode">保存到相册</button>
+    </view>
+  </view>
+</view>

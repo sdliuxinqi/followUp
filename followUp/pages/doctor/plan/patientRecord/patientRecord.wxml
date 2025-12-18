@@ -1,0 +1,93 @@
+<!--pages/doctor/plan/patientRecord/patientRecord.wxml-->
+<view class="page-container">
+  
+  <!-- 基本信息（必填项） -->
+  <view class="section-header">
+    <view class="section-title">基本信息</view>
+    <view class="section-count">必填项</view>
+  </view>
+
+  <view class="basic-info-card">
+    <view class="info-grid">
+      <block wx:for="{{record.requiredAnswers}}" wx:key="index">
+        <view class="info-grid-item">
+          <view class="info-grid-label">{{item.question}}</view>
+          <view class="info-grid-value">{{item.answer}}</view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <!-- 详细随访内容（可选项） -->
+  <view class="section-header" wx:if="{{record.optionalAnswers.length > 0}}">
+    <view class="section-title">详细随访内容</view>
+    <view class="section-count">{{record.optionalAnswers.length}}个问题</view>
+  </view>
+
+  <view class="answers-card" wx:if="{{record.optionalAnswers.length > 0}}">
+    <view class="answer-item" wx:for="{{record.optionalAnswers}}" wx:key="index">
+      <view class="question-number">Q{{index + 1}}</view>
+      <view class="question-content">
+        <view class="question-text">{{item.question}}</view>
+        <view class="answer-text">{{item.answer}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- AI分析报告 -->
+  <view class="section-header">
+    <view class="section-title">AI分析报告</view>
+    <view class="ai-status-badge" wx:if="{{aiAnalyzing}}">分析中</view>
+    <view class="ai-status-badge completed" wx:else>已完成</view>
+  </view>
+
+  <view class="ai-report-card">
+    <block wx:if="{{aiAnalyzing}}">
+      <view class="ai-loading">
+        <view class="loading-icon">🤖</view>
+        <view class="loading-text">AI正在分析患者数据...</view>
+        <view class="loading-progress">
+          <view class="progress-bar" style="width: {{aiProgress}}%"></view>
+        </view>
+      </view>
+    </block>
+    
+    <block wx:else>
+      <!-- 综合评估 -->
+      <view class="report-section">
+        <view class="report-section-title">综合评估</view>
+        <view class="report-content">{{record.aiReport.summary}}</view>
+      </view>
+
+      <!-- 详细分析 -->
+      <view class="report-section">
+        <view class="report-section-title">详细分析</view>
+        <view class="analysis-item" wx:for="{{record.aiReport.details}}" wx:key="index">
+          <view class="analysis-label">{{item.label}}</view>
+          <view class="analysis-value">{{item.value}}</view>
+        </view>
+      </view>
+
+      <!-- 医疗建议 -->
+      <view class="report-section">
+        <view class="report-section-title">医疗建议</view>
+        <view class="suggestions-list">
+          <view class="suggestion-item" wx:for="{{record.aiReport.suggestions}}" wx:key="index">
+            <view class="suggestion-dot"></view>
+            <text class="suggestion-text">{{item}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 操作按钮 -->
+      <view class="report-actions">
+        <view class="action-button primary" bindtap="savePDF" disabled="{{pdfGenerating}}">
+          <text class="button-text">{{pdfGenerating ? '生成中...' : '保存为PDF'}}</text>
+        </view>
+        <view class="action-button" bindtap="sharePDF" disabled="{{pdfGenerating}}">
+          <text class="button-text">分享报告</text>
+        </view>
+      </view>
+    </block>
+  </view>
+</view>

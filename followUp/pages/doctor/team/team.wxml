@@ -1,0 +1,162 @@
+<!--pages/doctor/team/team.wxml-->
+<view class="page-container">
+  
+  <!-- 添加成员按钮 -->
+  <view class="add-member-button" bindtap="showAddMemberDialog" wx:if="{{isLeader}}">
+    <text class="add-button-text">添加团队成员</text>
+  </view>
+
+  <!-- 团队负责人 -->
+  <view class="section-header" wx:if="{{leader}}">
+    <view class="section-title">团队负责人</view>
+  </view>
+
+  <view class="team-list" wx:if="{{leader}}">
+    <view class="member-card leader-card">
+      <view class="member-header">
+        <view class="avatar-wrapper">
+          <view class="avatar leader-avatar">{{leader.name.substring(0,1)}}</view>
+          <view class="avatar-badge">👑</view>
+        </view>
+        
+        <view class="member-info">
+          <view class="name-row">
+            <text class="name">{{leader.name}}</text>
+          </view>
+          <view class="role-tag leader-tag">
+            <text class="role-icon">⭐</text>
+            <text>团队负责人</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="member-body">
+        <view class="info-row">
+          <view class="info-item">
+            <text class="info-icon">🏥</text>
+            <text class="info-text">{{leader.hospital}}</text>
+          </view>
+        </view>
+        
+        <view class="info-row">
+          <view class="info-item">
+            <text class="info-icon">🏢</text>
+            <text class="info-text">{{leader.department}}</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="member-footer">
+        <view class="stat-badge leader-stat">
+          <text class="stat-icon">📊</text>
+          <text class="stat-text">已创建 {{leader.planCount}} 个随访计划</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 团队成员列表标题 -->
+  <view class="section-header" wx:if="{{normalMembers.length > 0}}">
+    <view class="section-title">团队成员</view>
+    <view class="section-count">{{normalMembers.length}}人</view>
+  </view>
+
+  <!-- 普通成员列表 -->
+  <view class="team-list" wx:if="{{normalMembers.length > 0}}">
+    <view class="member-card" wx:for="{{normalMembers}}" wx:key="id">
+      <!-- 移除按钮（右上角） -->
+      <view class="remove-button-top" bindtap="removeMember" data-id="{{item.id}}" wx:if="{{isLeader}}">
+        <text>移除</text>
+      </view>
+      
+      <view class="member-header">
+        <view class="avatar-wrapper">
+          <view class="avatar">{{item.name.substring(0,1)}}</view>
+        </view>
+        
+        <view class="member-info">
+          <view class="name-row">
+            <text class="name">{{item.name}}</text>
+          </view>
+          <view class="member-type-tag">
+            <text>团队成员</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="member-body">
+        <view class="info-row">
+          <view class="info-item">
+            <text class="info-icon">🏥</text>
+            <text class="info-text">{{item.hospital}}</text>
+          </view>
+        </view>
+        
+        <view class="info-row">
+          <view class="info-item">
+            <text class="info-icon">🏢</text>
+            <text class="info-text">{{item.department}}</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="member-footer">
+        <view class="stat-badge">
+          <text class="stat-icon">📊</text>
+          <text class="stat-text">已创建 {{item.planCount}} 个随访计划</text>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 空状态 -->
+  <block wx:if="{{teamMembers.length === 0}}">
+    <view class="empty-state">
+      <view class="empty-icon">👥</view>
+      <text class="empty-text">暂无团队成员</text>
+      <text class="empty-hint">认证通过后，将自动显示同一科室的医生</text>
+      <view class="empty-tips">
+        <view class="tip-item">• 与同科室医生协同工作</view>
+        <view class="tip-item">• 共享随访计划和数据</view>
+        <view class="tip-item">• 提升医疗服务效率</view>
+      </view>
+    </view>
+  </block>
+</view>
+
+<!-- 添加成员弹窗 - 医生列表选择 -->
+<view class="modal-mask" wx:if="{{showAddDialog}}" bindtap="hideAddMemberDialog" catchtouchmove="preventMove">
+  <view class="modal-container" catchtap="preventClose">
+    <view class="modal-header">
+      <text class="modal-title">选择医生</text>
+      <view class="modal-close" bindtap="hideAddMemberDialog">✕</view>
+    </view>
+    
+    <view class="modal-body">
+      <scroll-view class="doctor-list" scroll-y="{{true}}">
+        <view class="doctor-item" 
+          wx:for="{{availableDoctors}}" 
+          wx:key="id"
+          bindtap="selectDoctor"
+          data-id="{{item.id}}">
+          <view class="doctor-avatar">{{item.name.substring(0,1)}}</view>
+          <view class="doctor-info">
+            <view class="doctor-name">{{item.name}}</view>
+            <view class="doctor-detail">
+              <text class="doctor-hospital">{{item.hospital}}</text>
+              <text class="doctor-separator">·</text>
+              <text class="doctor-department">{{item.department}}</text>
+            </view>
+            <view class="doctor-title-tag">{{item.title}}</view>
+          </view>
+          <view class="select-icon">›</view>
+        </view>
+        
+        <view class="empty-doctor" wx:if="{{availableDoctors.length === 0}}">
+          <text class="empty-icon">👨‍⚕️</text>
+          <text class="empty-text">暂无可添加的医生</text>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,11 @@
+{
+  "usingComponents": {},
+  "navigationBarTitleText": "医生首页",
+  "navigationBarBackButton": {
+    "hidden": true
+  },
+  "navigationStyle": "custom",
+  "navigationBarBackgroundColor": "#1890ff",
+  "navigationBarTextStyle": "white",
+  "backgroundColorTop": "#1890ff"
+}

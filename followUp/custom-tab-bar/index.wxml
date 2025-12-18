@@ -1,0 +1,43 @@
+<view class="tab-bar {{mode}}">
+<!-- 医生端 -->
+<block wx:if="{{mode==='doctor'}}">
+  <view class="tab" bindtap="switchTab"
+    data-index="0"
+    data-path="/pages/doctor/home/home">
+    <image src="/assets/images/tabbar/doctor-home{{selected===0?'-active':''}}.png" />
+    <text class="{{selected===0?'active':''}}">首页</text>
+  </view>
+
+  <view class="tab" bindtap="switchTab"
+    data-index="1"
+    data-path="/pages/doctor/team/team">
+    <image src="/assets/images/tabbar/doctor-team{{selected===1?'-active':''}}.png" />
+    <text class="{{selected===1?'active':''}}">团队</text>
+  </view>
+
+  <view class="tab" bindtap="switchTab"
+    data-index="2"
+    data-path="/pages/doctor/mine/mine">
+    <image src="/assets/images/tabbar/doctor-mine{{selected===2?'-active':''}}.png" />
+    <text class="{{selected===2?'active':''}}">我的</text>
+  </view>
+</block>
+
+<!-- 患者端 -->
+<block wx:if="{{mode==='patient'}}">
+  <view class="tab" bindtap="switchTab"
+    data-index="0"
+    data-path="/pages/patient/home/home">
+    <image src="/assets/images/tabbar/patient-home{{selected===0?'-active':''}}.png" />
+    <text class="{{selected===0?'active':''}}">首页</text>
+  </view>
+
+  <view class="tab" bindtap="switchTab"
+    data-index="1"
+    data-path="/pages/patient/mine/mine">
+    <image src="/assets/images/tabbar/patient-mine{{selected===1?'-active':''}}.png" />
+    <text class="{{selected===1?'active':''}}">我的</text>
+  </view>
+</block>
+
+</view>

@@ -1,0 +1,57 @@
+<!--pages/patient/home/home.wxml-->
+<!-- 自定义导航栏 -->
+<view class="nav-bar" style="padding-top: {{statusBarHeight}}px;">
+  <view class="nav-content">
+    <view class="nav-left" bindtap="backToIndex">
+      <image class="back-icon" src="/assets/images/home.png" mode="aspectFit" />
+    </view>
+    <view class="nav-title">随访小助手</view>
+    <view class="nav-right"></view>
+  </view>
+</view>
+
+<view class="page-container" style="padding-top: {{statusBarHeight + navBarHeight}}px;">
+  <!-- 快速操作区域 -->
+  <view class="quick-actions">
+    <view class="action-card scan-card" bindtap="scanQRCode">
+      <view class="action-icon-wrapper">
+        <text class="action-icon qr-icon">⊞</text>
+      </view>
+      <view class="action-content">
+        <view class="action-title">扫码随访</view>
+        <view class="action-desc">扫描医生二维码填写随访</view>
+      </view>
+      <view class="action-arrow">›</view>
+    </view>
+  </view>
+
+  <!-- 我的随访列表 -->
+  <view class="records-section">
+    <view class="section-header">
+      <text class="section-title">我的随访记录</text>
+      <text class="record-count">共{{followRecords.length}}条</text>
+    </view>
+    
+    <view class="follow-list">
+      <block wx:if="{{followRecords.length > 0}}">
+        <view class="follow-item" wx:for="{{followRecords}}" wx:key="id" bindtap="viewFollowDetail" data-id="{{item.id}}">
+          <view class="follow-info">
+            <view class="follow-title">{{item.planTitle}}</view>
+            <view class="follow-meta">
+              <text class="doctor-name">👨‍⚕️ {{item.doctorName}}</text>
+            </view>
+            <view class="follow-time">🕐 {{item.fillTime}}</view>
+          </view>
+          <view class="arrow-icon">›</view>
+        </view>
+      </block>
+      <block wx:else>
+        <view class="empty-state">
+          <text class="empty-icon">📋</text>
+          <text class="empty-text">暂无随访记录</text>
+          <text class="empty-hint">请点击上方"扫码随访"参与医生的随访计划</text>
+        </view>
+      </block>
+    </view>
+  </view>
+</view>

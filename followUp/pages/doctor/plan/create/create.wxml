@@ -1,0 +1,281 @@
+<!--pages/doctor/plan/create/create.wxml-->
+<wxs module="utils">
+  // 计算选中的问题总数
+  var getSelectedQuestionsCount = function(availableQuestions, assessmentScales) {
+    var count = 0;
+    
+    // 计算基础问题
+    for (var i = 0; i < availableQuestions.length; i++) {
+      if (availableQuestions[i].selected) {
+        count++;
+      }
+    }
+    
+    // 计算量表问题
+    for (var i = 0; i < assessmentScales.length; i++) {
+      var questions = assessmentScales[i].questions;
+      for (var j = 0; j < questions.length; j++) {
+        if (questions[j].selected) {
+          count++;
+        }
+      }
+    }
+    
+    return count;
+  };
+  
+  // 获取选中的时间标签
+  var getSelectedTimeLabel = function(timeOptions, timeType) {
+    for (var i = 0; i < timeOptions.length; i++) {
+      if (timeOptions[i].value === timeType) {
+        return timeOptions[i].label;
+      }
+    }
+    return '';
+  };
+  
+  // 判断是否可以进入下一步
+  var canGoNext = function(currentStep, formData, availableQuestions, assessmentScales) {
+    if (currentStep === 0) {
+      // 第一步：检查计划名称和是否选择了时间节点
+      var title = formData.title || '';
+      var timeType = formData.timeType || '';
+      return title.trim() !== '' && timeType !== '';
+    } else if (currentStep === 1) {
+      // 第二步：检查是否选择了随访内容
+      // 计算选中的问题总数
+      var selectedCount = getSelectedQuestionsCount(availableQuestions, assessmentScales);
+      return selectedCount > 0;
+    }
+    return true;
+  };
+  
+  module.exports = {
+    getSelectedQuestionsCount: getSelectedQuestionsCount,
+    getSelectedTimeLabel: getSelectedTimeLabel,
+    canGoNext: canGoNext
+  };
+</wxs>
+
+<view class="page-container">
+  <!-- 步骤指示器 -->
+  <view class="steps">
+    <view class="step-item {{currentStep === 0 ? 'active' : ''}} {{currentStep > 0 ? 'completed' : ''}}">
+      <view class="step-number">
+        <text wx:if="{{currentStep > 0}}" class="step-icon">✓</text>
+        <text wx:else>1</text>
+      </view>
+      <view class="step-text">选择随访日期</view>
+    </view>
+    <view class="step-line {{currentStep >= 1 ? 'active' : ''}}"></view>
+    <view class="step-item {{currentStep === 1 ? 'active' : ''}} {{currentStep > 1 ? 'completed' : ''}}">
+      <view class="step-number">
+        <text wx:if="{{currentStep > 1}}" class="step-icon">✓</text>
+        <text wx:else>2</text>
+      </view>
+      <view class="step-text">选择随访内容</view>
+    </view>
+    <view class="step-line {{currentStep >= 2 ? 'active' : ''}}"></view>
+    <view class="step-item {{currentStep === 2 ? 'active' : ''}}">
+      <view class="step-number">3</view>
+      <view class="step-text">完成创建</view>
+    </view>
+  </view>
+
+  <!-- 步骤内容 -->
+  <view class="step-content">
+    <!-- 步骤1：选择随访日期和计划名称 -->
+    <view class="step-panel" wx:if="{{currentStep === 0}}">
+      <view class="panel-header">
+        <text class="panel-title">随访计划名称</text>
+        <text class="panel-subtitle">请输入一个易于识别的计划名称</text>
+      </view>
+      <input class="plan-title-input" placeholder="例如：膝关节术后康复随访" value="{{formData.title}}" bindinput="onTitleInput" />
+      
+      <view class="panel-header">
+        <text class="panel-title">选择随访时间节点</text>
+        <text class="panel-subtitle">请选择一个适合的随访时间点</text>
+      </view>
+      
+      <view class="time-options">
+        <block wx:for="{{timeOptions}}" wx:key="value">
+          <view class="time-option-card {{formData.timeType === item.value ? 'selected' : ''}}" bindtap="selectTime" data-value="{{item.value}}">
+            <view class="time-icon">📋</view>
+            <view class="time-content">
+              <text class="time-label">{{item.label}}</text>
+              <text class="time-desc" wx:if="{{item.value === 'preoperative'}}">手术前的基础评估</text>
+              <text class="time-desc" wx:elif="{{item.value === 'preDischarge'}}">出院前健康状况评估</text>
+              <text class="time-desc" wx:elif="{{item.value === 'oneMonthPostOp'}}">术后短期恢复评估</text>
+              <text class="time-desc" wx:elif="{{item.value === 'threeMonthsPostOp'}}">术后中期恢复评估</text>
+              <text class="time-desc" wx:elif="{{item.value === 'sixMonthsPostOp'}}">术后长期恢复评估</text>
+            </view>
+            <view class="time-check" wx:if="{{formData.timeType === item.value}}">✓</view>
+          </view>
+        </block>
+      </view>
+    </view>
+
+    <!-- 步骤2：选择随访内容 -->
+    <view class="step-panel" wx:if="{{currentStep === 1}}">
+      <!-- 一般状态（必选） -->
+      <view class="panel-header">
+        <text class="panel-title">一般状态<text class="required-star">*</text></text>
+        <text class="panel-subtitle">以下内容为必填项，将自动包含在随访计划中</text>
+      </view>
+      <view class="question-grid">
+        <block wx:for="{{availableQuestions}}" wx:key="id">
+          <view wx:if="{{item.group === 'basic'}}" class="question-grid-item selected required-item">
+            <view class="question-grid-title">
+              <text class="required-indicator">*</text>
+              <text>{{item.title}}</text>
+            </view>
+            <view class="question-grid-badge">必填</view>
+          </view>
+        </block>
+      </view>
+
+      <!-- 活动评估（可选） -->
+      <view class="panel-header">
+        <text class="panel-title">活动评估（可选）</text>
+        <text class="panel-subtitle">可选择需要评估的活动项目</text>
+      </view>
+      <view class="question-list">
+        <block wx:for="{{availableQuestions}}" wx:key="id">
+          <view wx:if="{{item.group === 'activity'}}"
+                class="question-item {{item.selected ? 'selected' : ''}}"
+                bindtap="toggleQuestion"
+                data-id="{{item.id}}">
+            <view class="question-info">
+              <view class="question-title">{{item.title}}</view>
+            </view>
+            <view class="question-checkbox">
+              {{item.selected ? '✓' : ''}}
+            </view>
+          </view>
+        </block>
+      </view>
+
+      <!-- 功能评分 / 量表（可选） -->
+      <view class="panel-header">
+        <text class="panel-title">功能评分（可选）</text>
+        <text class="panel-subtitle">可选择需要的评估量表</text>
+      </view>
+      <view class="scale-list">
+        <block wx:for="{{assessmentScales}}" wx:key="id">
+          <view class="scale-item">
+            <view class="scale-header" bindtap="toggleScale" data-id="{{item.id}}">
+              <view class="scale-info">
+                <view class="scale-title">{{item.title}}</view>
+                <view class="scale-description">{{item.description}}</view>
+              </view>
+              <view class="scale-arrow">{{item.expanded ? '▼' : '▶'}}</view>
+            </view>
+            
+            <!-- 量表问题列表 -->
+            <view class="scale-questions" wx:if="{{item.expanded}}">
+              <view class="scale-questions-header">
+                <text class="questions-count">包含 {{item.questions.length}} 个问题</text>
+              </view>
+              <block wx:for="{{item.questions}}" wx:key="id" wx:for-item="question" wx:for-index="qIndex">
+                <view class="question-item {{question.selected ? 'selected' : ''}}" bindtap="toggleQuestion" data-id="{{question.id}}">
+                  <view class="question-info">
+                    <view class="question-header-row">
+                      <view class="question-type">{{question.typeName}}</view>
+                      <view class="question-number">第{{qIndex + 1}}题</view>
+                    </view>
+                    <view class="question-title">
+                      <text>{{question.text}}</text>
+                    </view>
+                    <!-- 根据问题类型显示不同的样式 -->
+                    <view class="question-preview" wx:if="{{question.type === 'slider'}}">
+                      <text>范围：{{question.min}}-{{question.max}}，步长：{{question.step}}</text>
+                    </view>
+                    <view class="question-preview" wx:if="{{question.type === 'radio' || question.type === 'checkbox'}}">
+                      <text>{{question.options.length}}个选项</text>
+                    </view>
+                  </view>
+                  <view class="question-checkbox">{{question.selected ? '✓' : ''}}</view>
+                </view>
+              </block>
+              
+              <!-- 选择整个量表的按钮 -->
+              <view class="scale-action">
+                <button class="select-all-button" bindtap="toggleScaleQuestions" data-scale-id="{{item.id}}">
+                  {{item.allSelected ? '取消选择整个量表' : '选择整个量表'}}
+                </button>
+              </view>
+            </view>
+          </view>
+        </block>
+      </view>
+
+      <!-- AI 辅助智能评估（可选） -->
+      <view class="panel-header">
+        <text class="panel-title">AI辅助智能评估（可选）</text>
+        <text class="panel-subtitle">启用AI智能分析功能</text>
+      </view>
+      <view class="question-list">
+        <block wx:for="{{availableQuestions}}" wx:key="id">
+          <view wx:if="{{item.group === 'ai'}}"
+                class="question-item {{item.selected ? 'selected' : ''}}"
+                bindtap="toggleQuestion"
+                data-id="{{item.id}}">
+            <view class="question-info">
+              <view class="question-title">{{item.title}}</view>
+            </view>
+            <view class="question-checkbox">
+              {{item.selected ? '✓' : ''}}
+            </view>
+          </view>
+        </block>
+      </view>
+    </view>
+
+    <!-- 步骤3：完成创建 -->
+    <view class="step-panel" wx:if="{{currentStep === 2}}">
+      <view class="success-header">
+        <view class="success-icon">✓</view>
+        <view class="success-title">确认随访计划信息</view>
+        <view class="success-subtitle">请确认以下信息无误后，点击"创建随访计划"按钮</view>
+      </view>
+      
+      <view class="plan-summary">
+        <view class="summary-card">
+          <view class="summary-icon">📋</view>
+          <view class="summary-content">
+            <view class="summary-label">计划名称</view>
+            <view class="summary-value">{{formData.title}}</view>
+          </view>
+        </view>
+        
+        <view class="summary-card">
+          <view class="summary-icon">📅</view>
+          <view class="summary-content">
+            <view class="summary-label">时间节点</view>
+            <view class="summary-value">{{utils.getSelectedTimeLabel(timeOptions, formData.timeType)}}</view>
+          </view>
+        </view>
+        
+        <view class="summary-card">
+          <view class="summary-icon">📝</view>
+          <view class="summary-content">
+            <view class="summary-label">包含题目</view>
+            <view class="summary-value">{{utils.getSelectedQuestionsCount(availableQuestions, assessmentScales)}}个问题</view>
+          </view>
+        </view>
+      </view>
+      
+      <view class="summary-tip">
+        <text class="tip-icon">💡</text>
+        <text class="tip-text">创建后，患者将能够看到并填写这份随访计划</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部按钮 -->
+  <view class="bottom-buttons">
+    <button class="prev-button" wx:if="{{currentStep > 0}}" bindtap="prevStep">上一步</button>
+    <button class="next-button" wx:if="{{currentStep < 2}}" bindtap="nextStep" disabled="{{!utils.canGoNext(currentStep, formData, availableQuestions, assessmentScales)}}">下一步</button>
+    <button class="create-button" wx:if="{{currentStep === 2}}" bindtap="createPlan" loading="{{loading}}">创建随访计划</button>
+  </view>
+</view>

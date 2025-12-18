@@ -1,0 +1,45 @@
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  height: 100rpx;
+  background-color: #ffffff;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+
+  border-top: 1rpx solid #e5e5e5;
+  z-index: 999;
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.tab image {
+  width: 48rpx;
+  height: 48rpx;
+}
+
+.tab text {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* ===== 医生端 ===== */
+.tab-bar.doctor .tab text.active {
+  color: #4A90E2;   /* 医疗蓝 */
+}
+
+/* ===== 患者端 ===== */
+.tab-bar.patient .tab text.active {
+  color: #7BCA9A;   /* 温和的薄荷绿 */
+}

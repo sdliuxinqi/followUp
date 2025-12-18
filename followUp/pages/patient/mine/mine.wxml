@@ -1,0 +1,59 @@
+<!--pages/patient/mine/mine.wxml-->
+<view class="page-container">
+  <!-- 顶部用户信息卡片 -->
+  <view class="user-card">
+    <view class="user-avatar">
+      <text class="avatar-text">{{nickname ? nickname.substring(0,1) : '我'}}</text>
+    </view>
+    <view class="user-info">
+      <view class="user-name">{{nickname || '患者用户'}}</view>
+      <view class="user-role">健康随访患者</view>
+    </view>
+  </view>
+
+  <!-- 功能菜单区域 -->
+  <view class="menu-section">
+    <view class="section-title">我的服务</view>
+    
+    <view class="menu-card">
+      <view class="menu-item" bindtap="viewHistory">
+        <view class="menu-icon">📋</view>
+        <view class="menu-content">
+          <view class="menu-title">随访记录</view>
+          <view class="menu-desc">查看我的随访历史</view>
+        </view>
+        <view class="menu-arrow">›</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 设置区域 -->
+  <view class="menu-section">
+    <view class="section-title">设置与帮助</view>
+    
+    <view class="menu-card">
+      <view class="menu-item" bindtap="openAgreement">
+        <view class="menu-icon">📄</view>
+        <view class="menu-content">
+          <view class="menu-title">用户协议</view>
+          <view class="menu-desc">查看服务条款</view>
+        </view>
+        <view class="menu-arrow">›</view>
+      </view>
+
+      <view class="menu-item" bindtap="openPrivacy">
+        <view class="menu-icon">🔒</view>
+        <view class="menu-content">
+          <view class="menu-title">隐私政策</view>
+          <view class="menu-desc">了解隐私保护</view>
+        </view>
+        <view class="menu-arrow">›</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 版本信息 -->
+  <view class="version-info">
+    <text class="version-text">随访小助手 v1.0.0</text>
+  </view>
+</view>

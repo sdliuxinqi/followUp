@@ -1,0 +1,88 @@
+<!--pages/doctor/mine/mine.wxml-->
+<view class="page-container">
+  
+  <!-- 个人信息头部 -->
+  <view class="profile-header">
+    <view class="avatar-section">
+      <view class="avatar">{{profile.name ? profile.name.substring(0,1) : '医'}}</view>
+      <view class="user-info">
+        <view class="user-name">{{profile.name || '未设置姓名'}}</view>
+        <view class="status-badge {{profile.status}}">
+          <text class="status-icon">{{profile.status === 'approved' ? '✓' : profile.status === 'pending' ? '⏱' : '✕'}}</text>
+          <text class="status-text">{{profile.statusText}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 基本信息卡片 -->
+  <view class="section-header">
+    <view class="section-title">基本信息</view>
+  </view>
+
+  <view class="info-card">
+    <view class="info-item">
+      <view class="info-label">
+        <text class="label-icon">👤</text>
+        <text class="label-text">姓名</text>
+      </view>
+      <input class="info-input"
+             placeholder="请输入姓名"
+             value="{{editForm.name}}"
+             bindinput="onNameChange" />
+    </view>
+
+    <view class="info-item">
+      <view class="info-label">
+        <text class="label-icon">🏥</text>
+        <text class="label-text">医院</text>
+      </view>
+      <input class="info-input"
+             placeholder="请输入医院名称"
+             value="{{editForm.hospital}}"
+             bindinput="onHospitalChange" />
+    </view>
+
+    <view class="info-item">
+      <view class="info-label">
+        <text class="label-icon">🏢</text>
+        <text class="label-text">科室</text>
+      </view>
+      <input class="info-input"
+             placeholder="请输入科室"
+             value="{{editForm.department}}"
+             bindinput="onDepartmentChange" />
+    </view>
+  </view>
+
+  <!-- 工作证上传 -->
+  <view class="section-header">
+    <view class="section-title">工作证明</view>
+  </view>
+
+  <view class="workcard-card">
+    <view wx:if="{{!editForm.workCardImage}}" class="upload-area" bindtap="chooseWorkCardImage">
+      <view class="upload-icon">+</view>
+      <view class="upload-text">点击上传工作证</view>
+      <view class="upload-hint">支持jpg、png格式，大小不超过5MB</view>
+    </view>
+    <view wx:else class="preview-area">
+      <image class="preview-image" src="{{editForm.workCardImage}}" mode="aspectFit" />
+      <view class="image-actions">
+        <view class="action-button preview-button" bindtap="previewImage">
+          <text class="button-icon">👁</text>
+          <text>预览</text>
+        </view>
+        <view class="action-button delete-button" bindtap="removeWorkCardImage">
+          <text class="button-icon">🗑</text>
+          <text>删除</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 保存按钮 -->
+  <view class="save-button {{saving ? 'disabled' : ''}}" bindtap="saveProfile">
+    <text class="save-button-text">{{saving ? '保存中...' : '保存修改'}}</text>
+  </view>
+</view>

@@ -1,0 +1,156 @@
+/** 全局基础样式，统一页面风格 **/
+
+page {
+  background-color: #f5f6f8;
+  color: #333;
+  font-size: 28rpx;
+}
+
+.page-container {
+  min-height: 100vh;
+  padding: 24rpx 24rpx 120rpx;
+  box-sizing: border-box;
+}
+
+.header {
+  margin-bottom: 32rpx;
+}
+
+.header .title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #1f2d3d;
+}
+
+.header .sub-title {
+  margin-top: 8rpx;
+  font-size: 26rpx;
+  color: #909399;
+}
+
+.section {
+  margin-bottom: 32rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #303133;
+  margin-bottom: 16rpx;
+}
+
+.card {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 24rpx 28rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
+  box-sizing: border-box;
+}
+
+.list {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  overflow: hidden;
+}
+
+.list-item {
+  padding: 24rpx 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+.list-item-title {
+  font-size: 30rpx;
+  color: #303133;
+}
+
+.list-item-sub {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #909399;
+}
+
+.tag {
+  padding: 4rpx 12rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  line-height: 1;
+}
+
+.tag-primary {
+  background-color: #ecf5ff;
+  color: #409eff;
+}
+
+.tag-success {
+  background-color: #f0f9eb;
+  color: #67c23a;
+}
+
+.tag-warning {
+  background-color: #fdf6ec;
+  color: #e6a23c;
+}
+
+.tag-danger {
+  background-color: #fef0f0;
+  color: #f56c6c;
+}
+
+.primary-btn {
+  width: 100%;
+  height: 88rpx;
+  background: linear-gradient(135deg, #3a5ba0, #2c7be5);
+  color: #ffffff;
+  font-size: 32rpx;
+  border-radius: 999rpx;
+  border: none;
+}
+
+.primary-btn::after {
+  border: none;
+}
+
+.empty-state {
+  padding: 80rpx 0;
+  text-align: center;
+  color: #909399;
+  font-size: 26rpx;
+}
+
+.empty-text {
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.empty-hint {
+  font-size: 24rpx;
+  color: #c0c4cc;
+}
+
+/* 通用返回入口按钮 */
+.back-entry {
+  position: fixed;
+  left: 24rpx;
+  top: calc(var(--status-bar-height, 0) + 12rpx);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  padding: 12rpx 16rpx;
+  background-color: #ffffff;
+  border-radius: 999rpx;
+  box-shadow: 0 6rpx 16rpx rgba(0, 0, 0, 0.08);
+  color: #303133;
+  font-size: 26rpx;
+}
+
+.back-entry .arrow {
+  margin-right: 8rpx;
+  font-size: 28rpx;
+}

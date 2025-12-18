@@ -1,0 +1,16 @@
+{
+  "name": "follow-up-miniprogram",
+  "version": "1.0.0",
+  "description": "医生随访病患微信小程序",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["微信小程序", "医生随访"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "leancloud-storage": "^4.17.0",
+    "leancloud-realtime": "^5.0.0"
+  }
+}

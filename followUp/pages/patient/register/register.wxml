@@ -1,0 +1,127 @@
+<!--pages/patient/register/register.wxml-->
+<view class="page-container">
+  <!-- 表单卡片 -->
+  <view class="form-card">
+    <view class="form-title">患者基本信息</view>
+    
+    <form bindsubmit="submitRegister">
+      <!-- 姓名 -->
+      <view class="form-item">
+        <view class="label-row">
+          <text class="label">姓名</text>
+          <text class="required">*</text>
+        </view>
+        <input class="input" name="name" placeholder="请输入您的姓名" value="{{formData.name}}" />
+      </view>
+
+      <!-- 年龄和性别 -->
+      <view class="form-row">
+        <view class="form-item half-item">
+          <view class="label-row">
+            <text class="label">年龄</text>
+            <text class="required">*</text>
+          </view>
+          <input class="input" name="age" type="number" placeholder="请输入年龄" value="{{formData.age}}" />
+        </view>
+
+        <view class="form-item half-item">
+          <view class="label-row">
+            <text class="label">性别</text>
+            <text class="required">*</text>
+          </view>
+          <view class="gender-selector">
+            <view class="gender-btn {{formData.gender === '男' ? 'active' : ''}}" bindtap="selectGender" data-gender="男">
+              <text class="gender-text">男</text>
+            </view>
+            <view class="gender-btn {{formData.gender === '女' ? 'active' : ''}}" bindtap="selectGender" data-gender="女">
+              <text class="gender-text">女</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 住院号 -->
+      <view class="form-item">
+        <view class="label-row">
+          <text class="label">住院号</text>
+          <text class="required">*</text>
+        </view>
+        <input class="input" name="admissionNumber" placeholder="请输入住院号" value="{{formData.admissionNumber}}" />
+      </view>
+
+      <!-- 手机号 -->
+      <view class="form-item">
+        <view class="label-row">
+          <text class="label">手机号</text>
+          <text class="required">*</text>
+        </view>
+        <view class="phone-input-wrapper">
+          <input class="input phone-input" name="phone" type="number" placeholder="请输入手机号" value="{{formData.phone}}" />
+          <button class="auth-button" open-type="getPhoneNumber" bindgetphonenumber="getPhoneNumber">
+            一键获取
+          </button>
+        </view>
+      </view>
+
+      <!-- 治疗组 -->
+      <view class="form-item">
+        <view class="label-row">
+          <text class="label">治疗组</text>
+        </view>
+        <view class="team-selector" bindtap="showDoctorList">
+          <text class="team-value {{formData.teamName ? '' : 'placeholder'}}">
+            {{formData.teamName || '请选择治疗组医生'}}
+          </text>
+          <text class="selector-arrow">›</text>
+        </view>
+        <view class="team-hint">点击选择您的治疗组医生</view>
+      </view>
+
+      <!-- 提交按钮 -->
+      <button class="submit-btn" form-type="submit" loading="{{loading}}">
+        {{loading ? '提交中...' : '提交登记'}}
+      </button>
+    </form>
+
+    <!-- 底部提示 -->
+    <view class="footer-note">
+      <text class="note-text">注：提交后请等待治疗组确认</text>
+    </view>
+  </view>
+
+  <!-- 医生列表弹窗 -->
+  <view class="modal-mask" wx:if="{{showDoctorModal}}" bindtap="hideDoctorList">
+    <view class="modal-container" catchtap="stopPropagation">
+      <view class="modal-header">
+        <text class="modal-title">选择治疗组医生</text>
+        <text class="modal-close" bindtap="hideDoctorList">✕</text>
+      </view>
+      <view class="modal-body">
+        <scroll-view class="doctor-list" scroll-y>
+          <view 
+            class="doctor-item {{formData.doctorId === doctor.id ? 'selected' : ''}}" 
+            wx:for="{{doctorList}}" 
+            wx:key="id"
+            bindtap="selectDoctor"
+            data-doctor="{{item}}">
+            <view class="doctor-info">
+              <view class="doctor-avatar">
+                <text class="avatar-icon">👨‍⚕️</text>
+              </view>
+              <view class="doctor-details">
+                <view class="doctor-name">{{item.name}}</view>
+                <view class="doctor-meta">
+                  <text class="doctor-title">{{item.title}}</text>
+                  <text class="doctor-dept">{{item.department}}</text>
+                </view>
+                <view class="doctor-hospital">{{item.hospital}}</view>
+              </view>
+            </view>
+            <view class="check-icon" wx:if="{{formData.doctorId === item.id}}">✓</view>
+          </view>
+        </scroll-view>
+      </view>
+    </view>
+  </view>
+</view>
+

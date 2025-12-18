@@ -1,0 +1,88 @@
+<!--pages/patient/fill/fill.wxml-->
+<view class="page-container">
+  <view class="header">
+    <view class="title">{{planTitle}}</view>
+  </view>
+
+  <!-- 问卷内容 -->
+  <view class="question-container">
+    <view class="question-item" wx:for="{{questions}}" wx:for-item="question" wx:key="id">
+      <view class="question-header">
+        <text class="question-number">{{index + 1}}</text>
+        <text class="question-text">{{question.title}}</text>
+        <text class="required" wx:if="{{question.required}}">*</text>
+      </view>
+
+      <!-- 文本输入类型 -->
+      <input wx:if="{{question.type === 'text'}}" class="answer-input" 
+        placeholder="请输入您的回答" 
+        bindinput="onAnswerChange" 
+        data-question-id="{{question.id}}" 
+        value="{{answers[question.id] || ''}}"
+        placeholder-class="placeholder-text"
+      />
+
+      <!-- 评分题（滑杆） -->
+      <view wx:if="{{question.type === 'slider'}}" class="slider-container">
+        <slider class="answer-slider" 
+          min="0" max="10" 
+          value="{{answers[question.id] !== undefined ? answers[question.id] : 5}}" 
+          bindchange="onSliderChange" 
+          data-question-id="{{question.id}}"
+        />
+        <text class="slider-value">{{answers[question.id] !== undefined ? answers[question.id] : 5}}分</text>
+      </view>
+
+      <!-- 单选题 -->
+      <view wx:if="{{question.type === 'single'}}" class="options-container">
+        <radio-group class="radio-group" 
+          bindchange="onSingleSelect" 
+          data-question-id="{{question.id}}"
+        >
+          <label class="option-item" wx:for="{{question.options}}" wx:for-item="option" wx:key="id">
+            <radio value="{{option.id}}" checked="{{answers[question.id] === option.id}}" />
+            <text class="option-text">{{option.text}}</text>
+          </label>
+        </radio-group>
+      </view>
+
+      <!-- 多选题 -->
+      <view wx:if="{{question.type === 'multi'}}" class="options-container">
+        <checkbox-group class="checkbox-group" 
+          bindchange="onMultiSelect" 
+          data-question-id="{{question.id}}"
+        >
+          <block wx:for="{{question.options}}" wx:for-item="option" wx:key="*this">
+            <label class="option-item">
+              <checkbox value="{{option.id}}" />
+              <text class="option-text">{{option.text}}</text>
+            </label>
+          </block>
+        </checkbox-group>
+      </view>
+
+      <!-- 视频上传 -->
+      <view wx:if="{{question.type === 'video'}}" class="video-upload">
+        <view wx:if="{{!answers[question.id]}}" class="upload-btn" 
+          bindtap="onVideoUpload" 
+          data-question-id="{{question.id}}"
+        >
+          <text>上传视频</text>
+        </view>
+        <view wx:else class="video-preview">
+          <video src="{{answers[question.id]}}" controls></video>
+          <view class="delete-btn" bindtap="onVideoDelete" data-question-id="{{question.id}}">
+            删除视频
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 提交按钮 -->
+  <view class="submit-container">
+    <button class="submit-btn" bindtap="submitFollowUp" loading="{{submitting}}">
+      提交随访
+    </button>
+  </view>
+</view>

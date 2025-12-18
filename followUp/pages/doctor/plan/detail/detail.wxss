@@ -1,0 +1,467 @@
+/* pages/doctor/plan/detail/detail.wxss - 现代化设计 */
+page {
+  background: linear-gradient(180deg, #e6f7ff 0%, #ffffff 100%);
+  min-height: 100vh;
+}
+
+.page-container {
+  padding: 24rpx;
+  padding-bottom: 140rpx;
+}
+
+/* 计划信息头部卡片 */
+.plan-header-card {
+  margin-bottom: 24rpx;
+  padding: 32rpx 28rpx;
+  background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
+  border-radius: 24rpx;
+  box-shadow: 0 12rpx 32rpx rgba(24, 144, 255, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+.plan-header-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 200rpx;
+  height: 200rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+}
+
+.plan-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+  position: relative;
+  z-index: 1;
+}
+
+.plan-title {
+  flex: 1;
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #ffffff;
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+.settings-button {
+  width: 64rpx;
+  height: 64rpx;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10rpx);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  color: #ffffff;
+  transition: all 0.3s;
+}
+
+.settings-button:active {
+  transform: scale(0.9);
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.plan-stats-row {
+  display: flex;
+  gap: 24rpx;
+  position: relative;
+  z-index: 1;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  padding: 8rpx 16rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 20rpx;
+  backdrop-filter: blur(10rpx);
+}
+
+.stat-text {
+  font-size: 24rpx;
+  color: #ffffff;
+}
+
+/* 分组标题 */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+  padding: 0 8rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.section-count {
+  font-size: 24rpx;
+  color: #718096;
+  background: #edf2f7;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+/* 信息卡片 */
+.info-card {
+  margin-bottom: 32rpx;
+  padding: 28rpx;
+  border-radius: 24rpx;
+  background: #ffffff;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.06);
+  position: relative;
+  overflow: hidden;
+}
+
+.info-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 8rpx;
+  background: linear-gradient(180deg, #1890ff 0%, #40a9ff 100%);
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24rpx;
+  padding-bottom: 24rpx;
+  border-bottom: 1rpx solid #edf2f7;
+}
+
+.info-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.info-label {
+  min-width: 140rpx;
+  font-size: 28rpx;
+  color: #4a5568;
+  font-weight: 500;
+}
+
+.info-value {
+  flex: 1;
+  font-size: 28rpx;
+  color: #2d3748;
+  font-weight: 500;
+}
+
+/* 二维码卡片 */
+.qrcode-card {
+  margin-bottom: 32rpx;
+  padding: 40rpx 28rpx;
+  background: #ffffff;
+  border-radius: 24rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.06);
+  text-align: center;
+}
+
+.qrcode-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24rpx;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.qrcode-wrapper:active {
+  transform: scale(0.95);
+}
+
+.qrcode {
+  width: 320rpx;
+  height: 320rpx;
+  padding: 20rpx;
+  background: #f7fafc;
+  border: 2rpx solid #edf2f7;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.qrcode-hint {
+  font-size: 26rpx;
+  color: #4A90E2;
+  padding: 16rpx 24rpx;
+  background: linear-gradient(135deg, #e6f7ff, #f0f9ff);
+  border-radius: 12rpx;
+  text-align: center;
+}
+
+/* 参与患者卡片 */
+.participants-card {
+  margin-bottom: 32rpx;
+  padding: 28rpx;
+  background: #ffffff;
+  border-radius: 24rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.06);
+  position: relative;
+  overflow: hidden;
+}
+
+.participants-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 8rpx;
+  background: linear-gradient(180deg, #52c41a 0%, #73d13d 100%);
+}
+
+.participant-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #edf2f7;
+  transition: all 0.3s;
+}
+
+.participant-item:last-child {
+  border-bottom: none;
+}
+
+.patient-info {
+  flex: 1;
+}
+
+.patient-name {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #2d3748;
+  margin-bottom: 8rpx;
+}
+
+.patient-meta {
+  font-size: 24rpx;
+  color: #718096;
+}
+
+.arrow-icon {
+  font-size: 32rpx;
+  color: #cbd5e0;
+  font-weight: 600;
+}
+
+/* 空状态 */
+.empty-state {
+  padding: 80rpx 40rpx;
+  text-align: center;
+}
+
+.empty-text {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 8rpx;
+}
+
+.empty-hint {
+  display: block;
+  font-size: 24rpx;
+  color: #718096;
+}
+
+/* 设置菜单弹窗 */
+.settings-menu-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-end;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.settings-menu {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 24rpx 24rpx 0 0;
+  padding: 24rpx;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.menu-item {
+  height: 96rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f7fafc;
+  border-radius: 16rpx;
+  margin-bottom: 16rpx;
+  transition: all 0.3s;
+}
+
+.menu-item:last-child {
+  margin-bottom: 0;
+}
+
+.menu-item:active {
+  background: #edf2f7;
+  transform: scale(0.98);
+}
+
+.discard-item {
+  background: linear-gradient(135deg, #fff1f0, #ffe7e7);
+}
+
+.discard-item .menu-text {
+  color: #ff4d4f;
+}
+
+.cancel-item {
+  background: #ffffff;
+  border: 2rpx solid #edf2f7;
+  margin-top: 8rpx;
+}
+
+.menu-text {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #2d3748;
+}
+
+/* 二维码放大弹窗 */
+.qrcode-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 60rpx;
+}
+
+.qrcode-modal-content {
+  background: #ffffff;
+  border-radius: 32rpx;
+  width: 100%;
+  max-width: 600rpx;
+  overflow: hidden;
+  animation: modalSlideUp 0.3s ease-out;
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(100rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.qrcode-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx 40rpx;
+  border-bottom: 1rpx solid #e2e8f0;
+}
+
+.qrcode-modal-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.qrcode-modal-close {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  color: #718096;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.qrcode-modal-close:active {
+  background: #edf2f7;
+  color: #2d3748;
+}
+
+.qrcode-modal-body {
+  padding: 60rpx 40rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.qrcode-large {
+  width: 100%;
+  height: 480rpx;
+  border-radius: 24rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.1);
+  background: #ffffff;
+}
+
+.qrcode-modal-hint {
+  margin-top: 32rpx;
+  font-size: 28rpx;
+  color: #718096;
+  text-align: center;
+}
+
+.qrcode-modal-footer {
+  padding: 24rpx 40rpx 40rpx;
+}
+
+.save-qrcode-button {
+  width: 100%;
+  padding: 28rpx;
+  background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+  border-radius: 16rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 4rpx 12rpx rgba(74, 144, 226, 0.3);
+  transition: all 0.3s ease;
+}
+
+.save-qrcode-button:active {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 8rpx rgba(74, 144, 226, 0.2);
+}

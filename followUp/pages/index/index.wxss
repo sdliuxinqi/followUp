@@ -1,0 +1,234 @@
+/* pages/index/index.wxss */
+
+page {
+  background: linear-gradient(180deg, #f0f7ff 0%, #ffffff 100%);
+  min-height: 100vh;
+}
+
+.page {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* 背景装饰圆圈 */
+.bg-decoration {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(74, 144, 226, 0.08);
+}
+
+.circle-1 {
+  width: 400rpx;
+  height: 400rpx;
+  top: -100rpx;
+  right: -100rpx;
+}
+
+.circle-2 {
+  width: 300rpx;
+  height: 300rpx;
+  bottom: 100rpx;
+  left: -80rpx;
+  background: rgba(82, 196, 26, 0.06);
+}
+
+.circle-3 {
+  width: 200rpx;
+  height: 200rpx;
+  top: 40%;
+  right: 40rpx;
+  background: rgba(74, 144, 226, 0.05);
+}
+
+/* 内容区域 */
+.content {
+  position: relative;
+  z-index: 1;
+  padding: 40rpx 32rpx 40rpx;
+}
+
+/* Logo区域 */
+.logo-area {
+  text-align: center;
+  margin-bottom: 48rpx;
+}
+
+.logo-wrapper {
+  display: inline-block;
+  padding: 20rpx;
+  background: transparent;
+  border: 4rpx solid #4A90E2;
+  border-radius: 50%;
+  box-shadow: 0 8rpx 24rpx rgba(74, 144, 226, 0.15);
+  margin-bottom: 20rpx;
+}
+
+.logo {
+  width: 80rpx;
+  height: 80rpx;
+  display: block;
+}
+
+.title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 12rpx;
+  letter-spacing: 2rpx;
+}
+
+.sub-title {
+  font-size: 24rpx;
+  color: #718096;
+  margin-bottom: 8rpx;
+}
+
+.tagline {
+  font-size: 20rpx;
+  color: #4A90E2;
+  letter-spacing: 3rpx;
+}
+
+/* 角色卡片容器 */
+.role-cards {
+  margin-bottom: 80rpx;
+}
+
+/* 角色卡片 */
+.role-card {
+  padding: 32rpx 28rpx;
+  border-radius: 24rpx;
+  margin-bottom: 24rpx;
+  background: #ffffff;
+  box-shadow: 0 6rpx 24rpx rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.role-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4rpx;
+  background: linear-gradient(90deg, #4A90E2 0%, #357ABD 100%);
+}
+
+.patient-card::before {
+  background: linear-gradient(90deg, #7BCA9A 0%, #8DD5B0 100%);
+}
+
+.role-card:active {
+  transform: scale(0.98);
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+}
+
+/* 卡片头部 */
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+}
+
+.card-icon-wrapper {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 20rpx;
+  background: linear-gradient(135deg, #e6f3ff 0%, #d0e8ff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 12rpx rgba(74, 144, 226, 0.2);
+}
+
+.card-icon-wrapper.patient-icon {
+  background: linear-gradient(135deg, #f0ffe9 0%, #d9f7be 100%);
+  box-shadow: 0 4rpx 12rpx rgba(123, 202, 154, 0.2);
+}
+
+.card-icon {
+  font-size: 48rpx;
+}
+
+.card-badge {
+  color: #4A90E2;
+  font-size: 40rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+}
+
+.card-badge.patient-badge {
+  color: #7BCA9A;
+}
+
+/* 卡片主体 */
+.card-body {
+  margin-bottom: 20rpx;
+}
+
+.card-title {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 12rpx;
+}
+
+.card-desc {
+  font-size: 26rpx;
+  color: #718096;
+  line-height: 1.5;
+}
+
+/* 卡片底部 */
+.card-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #edf2f7;
+}
+
+.enter-text {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #4A90E2;
+}
+
+.patient-card .enter-text {
+  color: #7BCA9A;
+}
+
+/* 隐私政策和用户协议 */
+.agreement-privacy {
+  position: fixed;
+  bottom: 40rpx;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 22rpx;
+  z-index: 10;
+  padding: 0 32rpx;
+}
+
+.agreement-text {
+  color: #a0aec0;
+}
+
+.agreement-privacy .link {
+  color: #4A90E2;
+  font-weight: 500;
+  margin: 0 4rpx;
+}

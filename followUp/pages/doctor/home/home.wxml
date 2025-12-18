@@ -1,0 +1,83 @@
+<!--pages/doctor/home/home.wxml-->
+<!-- 自定义导航栏 -->
+<view class="nav-bar" style="padding-top: {{statusBarHeight}}px;">
+  <view class="nav-content">
+    <view class="nav-left" bindtap="backToIndex">
+      <image class="back-icon" src="/assets/images/home.png" mode="aspectFit" />
+    </view>
+    <view class="nav-title">我的随访计划</view>
+    <view class="nav-right"></view>
+  </view>
+</view>
+
+<view class="page-container" style="padding-top: {{statusBarHeight + navBarHeight}}px;">
+  
+  <!-- 顶部统计卡片组 -->
+  <view class="stats-container">
+    <view class="stat-card stat-card-primary">
+      <view class="stat-content">
+        <view class="stat-value">{{plans.length}}</view>
+        <view class="stat-label">随访计划</view>
+      </view>
+    </view>
+    
+    <view class="stat-card stat-card-success">
+      <view class="stat-content">
+        <view class="stat-value">{{totalParticipants}}</view>
+        <view class="stat-label">参与患者</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 新建随访计划按钮 -->
+  <view class="create-button" bindtap="createFollowUpPlan">
+    <text class="create-button-text">创建新随访计划</text>
+  </view>
+
+  <!-- 随访计划列表标题 -->
+  <view class="section-header" wx:if="{{plans.length > 0}}">
+    <view class="section-title">我的计划</view>
+    <view class="section-count">共{{plans.length}}个</view>
+  </view>
+
+  <!-- 随访计划列表 -->
+  <view class="plan-list">
+    <block wx:if="{{plans.length > 0}}">
+      <view class="plan-item" wx:for="{{plans}}" wx:key="id" bindtap="viewPlanDetail" data-id="{{item.id}}">
+        <view class="plan-body">
+          <view class="plan-title">{{item.title}}</view>
+          <view class="plan-description">为患者提供专业的随访管理服务</view>
+          
+          <view class="plan-stats">
+            <view class="plan-stat-item">
+              <text class="stat-icon">👤</text>
+              <text class="stat-text">{{item.participantCount}}人参与</text>
+            </view>
+            <view class="plan-stat-item">
+              <text class="stat-icon">📅</text>
+              <text class="stat-text">{{item.createdAt}}</text>
+            </view>
+          </view>
+        </view>
+        
+        <view class="plan-footer">
+          <view class="arrow-icon">
+            <text>查看详情 ›</text>
+          </view>
+        </view>
+      </view>
+    </block>
+    <block wx:else>
+      <view class="empty-state">
+        <view class="empty-icon">📝</view>
+        <text class="empty-text">暂无随访计划</text>
+        <text class="empty-hint">点击上方按钮创建您的第一个随访计划</text>
+        <view class="empty-tips">
+          <view class="tip-item">• 轻松管理患者随访</view>
+          <view class="tip-item">• 实时跟踪填写进度</view>
+          <view class="tip-item">• 数据统计一目了然</view>
+        </view>
+      </view>
+    </block>
+  </view>
+</view>

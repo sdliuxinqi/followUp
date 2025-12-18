@@ -1,0 +1,11 @@
+{
+  "usingComponents": {},
+  "navigationBarTitleText": "随访小助手",
+  "navigationBarBackButton": {
+    "hidden": true
+  },
+  "navigationStyle": "custom",
+  "navigationBarBackgroundColor": "#7BCA9A",
+  "navigationBarTextStyle": "white",
+  "backgroundColorTop": "#7BCA9A"
+}

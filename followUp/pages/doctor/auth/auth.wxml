@@ -1,0 +1,80 @@
+<!--pages/doctor/auth/auth.wxml-->
+<view class="page-container">
+  <!-- 顶部说明区域 -->
+  <view class="header-section">
+    <view class="icon-wrapper">
+      <text class="header-icon">👨‍⚕️</text>
+    </view>
+    <view class="header-title">医生身份认证</view>
+    <view class="header-subtitle">完成认证后即可使用医生端功能</view>
+  </view>
+
+  <!-- 认证提示卡片 -->
+  <view class="tip-card">
+    <view class="tip-icon">💡</view>
+    <view class="tip-content">
+      <view class="tip-title">认证说明</view>
+      <view class="tip-text">请确保您填写的信息真实有效，我们将在1-2个工作日内完成审核</view>
+    </view>
+  </view>
+
+  <!-- 认证表单 -->
+  <view class="form-card">
+    <view class="form-title">基本信息</view>
+    <form bindsubmit="submitAuth">
+      <view class="form-item">
+        <view class="label-row">
+          <text class="label">姓名</text>
+          <text class="required">*</text>
+        </view>
+        <input class="input" name="name" placeholder="请输入您的真实姓名" value="{{formData.name}}" />
+      </view>
+
+      <view class="form-item">
+        <view class="label-row">
+          <text class="label">医院</text>
+          <text class="required">*</text>
+        </view>
+        <input class="input" name="hospital" placeholder="请输入您所在医院的全称" value="{{formData.hospital}}" />
+      </view>
+
+      <view class="form-item">
+        <view class="label-row">
+          <text class="label">科室</text>
+          <text class="required">*</text>
+        </view>
+        <input class="input" name="department" placeholder="例如：骨科" value="{{formData.department}}" />
+      </view>
+
+      <view class="form-item">
+        <view class="label-row">
+          <text class="label">工作证照片</text>
+          <text class="required">*</text>
+        </view>
+        <view class="upload-hint">请上传清晰的工作证或医师执业证书照片</view>
+        <view class="upload-container">
+          <view class="upload-btn" bindtap="chooseWorkCardImage" wx:if="!formData.workCardImage">
+            <text class="upload-icon">+</text>
+            <text class="upload-text">点击上传照片</text>
+          </view>
+          <view class="image-preview" wx:else>
+            <image src="{{formData.workCardImage}}" mode="aspectFit" />
+            <view class="delete-btn" bindtap="deleteWorkCardImage">
+              <text class="delete-icon">×</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <button class="submit-btn" form-type="submit" loading="{{loading}}">
+        {{loading ? '提交中...' : '提交认证申请'}}
+      </button>
+    </form>
+  </view>
+
+  <!-- 底部说明 -->
+  <view class="footer-note">
+    <text class="note-icon">🔒</text>
+    <text class="note-text">您的信息将被严格保密，仅用于身份认证</text>
+  </view>
+</view>

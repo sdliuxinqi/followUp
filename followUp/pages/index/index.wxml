@@ -1,0 +1,67 @@
+<!--pages/index/index.wxml-->
+<view class="page">
+  <!-- 背景装饰 -->
+  <view class="bg-decoration">
+    <view class="circle circle-1"></view>
+    <view class="circle circle-2"></view>
+    <view class="circle circle-3"></view>
+  </view>
+
+  <!-- 内容区域 -->
+  <view class="content">
+    <!-- logo -->
+    <view class="logo-area">
+      <view class="logo-wrapper">
+        <image class="logo" src="/assets/images/logo.png" />
+      </view>
+      <view class="title">随访小助手</view>
+      <view class="sub-title">智能健康管理平台</view>
+      <view class="tagline">专业·便捷·智能</view>
+    </view>
+
+    <!-- 角色选择卡片 -->
+    <view class="role-cards">
+      <!-- 医生 -->
+      <view class="role-card doctor-card" bindtap="chooseDoctor">
+        <view class="card-header">
+          <view class="card-icon-wrapper">
+            <text class="card-icon">👨‍⚕️</text>
+          </view>
+          <view class="card-badge">医护人员</view>
+        </view>
+        <view class="card-body">
+          <view class="card-title">我是医生</view>
+          <view class="card-desc">高效管理患者随访计划</view>
+        </view>
+        <view class="card-footer">
+          <text class="enter-text">进入 ›</text>
+        </view>
+      </view>
+
+      <!-- 患者 -->
+      <view class="role-card patient-card" bindtap="choosePatient">
+        <view class="card-header">
+          <view class="card-icon-wrapper patient-icon">
+            <text class="card-icon">🧑</text>
+          </view>
+          <view class="card-badge patient-badge">患者</view>
+        </view>
+        <view class="card-body">
+          <view class="card-title">我是患者</view>
+          <view class="card-desc">查看我的健康随访档案</view>
+        </view>
+        <view class="card-footer">
+          <text class="enter-text">进入 ›</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 隐私政策和用户协议 -->
+    <view class="agreement-privacy">
+      <text class="agreement-text">登录即表示同意</text>
+      <text class="link" bindtap="navigateToAgreement">《用户协议》</text>
+      <text class="agreement-text">和</text>
+      <text class="link" bindtap="navigateToPrivacy">《隐私政策》</text>
+    </view>
+  </view>
+</view>

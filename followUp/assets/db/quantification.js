@@ -1,0 +1,538 @@
+// 为了在小程序中稳定引入量表配置，这里把 quantification.json 的内容
+// 直接转成 JS 模块导出，避免对 JSON 文件再做 require
+
+module.exports = [
+  {
+    "code": "VAS_PAIN",
+    "title": "视觉模拟疼痛评分 (VAS)",
+    "content": {
+      "description": "请在标尺上指出您目前的疼痛程度。",
+      "questions": [
+        {
+          "id": "vas_value",
+          "text": "0代表无痛，10代表剧痛",
+          "type": "slider",
+          "min": 0,
+          "max": 10,
+          "step": 1,
+          "marks": { "0": "无痛", "10": "剧痛" }
+        }
+      ]
+    }
+  },
+  {
+    "code": "EQ-5D-5L",
+    "title": "健康状况描述 (EQ-5D-5L)",
+    "content": {
+      "description": "在每个标题下，请勾选最能描述您**今天**健康状况的一个选项。",
+      "questions": [
+        {
+          "id": "mobility",
+          "text": "行动能力",
+          "type": "radio",
+          "options": [
+            { "score": 1, "text": "我四处走动没有困难" },
+            { "score": 2, "text": "我四处走动有些困难" },
+            { "score": 3, "text": "我四处走动有中度困难" },
+            { "score": 4, "text": "我四处走动有严重困难" },
+            { "score": 5, "text": "我无法四处走动" }
+          ]
+        },
+        {
+          "id": "self_care",
+          "text": "自我照顾",
+          "type": "radio",
+          "options": [
+            { "score": 1, "text": "我自己洗澡或穿衣没有困难" },
+            { "score": 2, "text": "我自己洗澡或穿衣有些困难" },
+            { "score": 3, "text": "我自己洗澡或穿衣有中度困难" },
+            { "score": 4, "text": "我自己洗澡或穿衣有严重困难" },
+            { "score": 5, "text": "我无法自己洗澡或穿衣" }
+          ]
+        },
+        {
+          "id": "usual_activities",
+          "text": "日常活动（如工作、学习、家务、家庭或休闲活动）",
+          "type": "radio",
+          "options": [
+            { "score": 1, "text": "我进行日常活动没有困难" },
+            { "score": 2, "text": "我进行日常活动有些困难" },
+            { "score": 3, "text": "我进行日常活动有中度困难" },
+            { "score": 4, "text": "我进行日常活动有严重困难" },
+            { "score": 5, "text": "我无法进行日常活动" }
+          ]
+        },
+        {
+          "id": "pain_discomfort",
+          "text": "疼痛或不舒服",
+          "type": "radio",
+          "options": [
+            { "score": 1, "text": "我没有疼痛或不舒服" },
+            { "score": 2, "text": "我有轻微的疼痛或不舒服" },
+            { "score": 3, "text": "我有中度的疼痛或不舒服" },
+            { "score": 4, "text": "我有严重的疼痛或不舒服" },
+            { "score": 5, "text": "我有极度的疼痛或不舒服" }
+          ]
+        },
+        {
+          "id": "anxiety_depression",
+          "text": "焦虑或抑郁",
+          "type": "radio",
+          "options": [
+            { "score": 1, "text": "我没有焦虑或抑郁" },
+            { "score": 2, "text": "我有轻微的焦虑或抑郁" },
+            { "score": 3, "text": "我有中度的焦虑或抑郁" },
+            { "score": 4, "text": "我有严重的焦虑或抑郁" },
+            { "score": 5, "text": "我有极度的焦虑或抑郁" }
+          ]
+        },
+        {
+          "id": "eq_vas",
+          "text": "我们想知道您今天的健康状况有多好或多坏。0代表您心目中“最差的状况”，100代表“最好的状况”。",
+          "type": "slider",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "marks": { "0": "最差", "100": "最好" }
+        }
+      ]
+    }
+  },
+  {
+    "code": "OKS",
+    "title": "牛津膝关节评分 (Oxford Knee Score)",
+    "content": {
+      "description": "请回答以下关于您过去4周内膝关节情况的问题。",
+      "questions": [
+        {
+          "id": "q1",
+          "text": "您怎么形容您膝盖通常的疼痛程度？",
+          "type": "radio",
+          "options": [
+            { "score": 4, "text": "完全不痛" },
+            { "score": 3, "text": "非常轻微" },
+            { "score": 2, "text": "轻微" },
+            { "score": 1, "text": "中度" },
+            { "score": 0, "text": "严重" }
+          ]
+        },
+        {
+          "id": "q2",
+          "text": "您在进行日常清洗（如洗澡、擦身）时遇到困难了吗？",
+          "type": "radio",
+          "options": [
+            { "score": 4, "text": "完全没有困难" },
+            { "score": 3, "text": "极其轻微的困难" },
+            { "score": 2, "text": "中度困难" },
+            { "score": 1, "text": "极其困难" },
+            { "score": 0, "text": "不可能做到" }
+          ]
+        },
+        {
+          "id": "q3",
+          "text": "您在乘坐小汽车或公共交通工具时（您可以只作为乘客），上下车有困难吗？",
+          "type": "radio",
+          "options": [
+            { "score": 4, "text": "完全没有困难" },
+            { "score": 3, "text": "极其轻微的困难" },
+            { "score": 2, "text": "中度困难" },
+            { "score": 1, "text": "极其困难" },
+            { "score": 0, "text": "不可能做到" }
+          ]
+        },
+        {
+          "id": "q4",
+          "text": "您能够走多长时间才因为膝盖疼痛而不得不停下来？",
+          "type": "radio",
+          "options": [
+            { "score": 4, "text": "没有因为膝痛而停下/超过60分钟" },
+            { "score": 3, "text": "16到60分钟" },
+            { "score": 2, "text": "5到15分钟" },
+            { "score": 1, "text": "只能在房子周围走动" },
+            { "score": 0, "text": "完全不能行走" }
+          ]
+        },
+        {
+          "id": "q5",
+          "text": "吃过正餐后，您从椅子上站起来时（此时膝盖还没有开始活动），膝盖感到多疼？",
+          "type": "radio",
+          "options": [
+            { "score": 4, "text": "完全不痛" },
+            { "score": 3, "text": "非常轻微" },
+            { "score": 2, "text": "轻微" },
+            { "score": 1, "text": "中度疼痛" },
+            { "score": 0, "text": "无法忍受" }
+          ]
+        },
+        {
+          "id": "q6",
+          "text": "您是否曾跛行行走？",
+          "type": "radio",
+          "options": [
+            { "score": 4, "text": "从不" },
+            { "score": 3, "text": "最初几步可以" },
+            { "score": 2, "text": "有时" },
+            { "score": 1, "text": "大部分时间" },
+            { "score": 0, "text": "一直" }
+          ]
+        },
+        {
+          "id": "q7",
+          "text": "您能跪下再站起来吗？",
+          "type": "radio",
+          "options": [
+            { "score": 4, "text": "容易" },
+            { "score": 3, "text": "有些困难" },
+            { "score": 2, "text": "中度困难" },
+            { "score": 1, "text": "极其困难" },
+            { "score": 0, "text": "不可能做到" }
+          ]
+        },
+        {
+          "id": "q8",
+          "text": "您的膝盖因为疼痛会在夜里把您弄醒吗？",
+          "type": "radio",
+          "options": [
+            { "score": 4, "text": "从不" },
+            { "score": 3, "text": "仅有一两个晚上" },
+            { "score": 2, "text": "有些晚上会" },
+            { "score": 1, "text": "大多数晚上会" },
+            { "score": 0, "text": "每晚都会" }
+          ]
+        },
+        {
+          "id": "q9",
+          "text": "关于您的工作或家务，您的膝盖疼痛对您的影响有多大？",
+          "type": "radio",
+          "options": [
+            { "score": 4, "text": "完全没有" },
+            { "score": 3, "text": "非常轻微" },
+            { "score": 2, "text": "有些影响" },
+            { "score": 1, "text": "较大影响" },
+            { "score": 0, "text": "完全不能工作" }
+          ]
+        },
+        {
+          "id": "q10",
+          "text": "您是否感觉您的膝盖会突然“打软腿”或完全支撑不住？",
+          "type": "radio",
+          "options": [
+            { "score": 4, "text": "从不" },
+            { "score": 3, "text": "大概只有一次" },
+            { "score": 2, "text": "有时会" },
+            { "score": 1, "text": "大多数时候会" },
+            { "score": 0, "text": "一直会" }
+          ]
+        },
+        {
+          "id": "q11",
+          "text": "您可以去自己买东西吗（包含所有的家务采购）？",
+          "type": "radio",
+          "options": [
+            { "score": 4, "text": "经常可以" },
+            { "score": 3, "text": "有时可以" },
+            { "score": 2, "text": "勉强可以" },
+            { "score": 1, "text": "不能" },
+            { "score": 0, "text": "完全不能" }
+          ]
+        },
+        {
+          "id": "q12",
+          "text": "您可以自己走下楼梯吗？",
+          "type": "radio",
+          "options": [
+            { "score": 4, "text": "经常可以" },
+            { "score": 3, "text": "有时可以" },
+            { "score": 2, "text": "勉强可以" },
+            { "score": 1, "text": "不能" },
+            { "score": 0, "text": "完全不能" }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "code": "KOOS-12",
+    "title": "KOOS-12 膝关节损伤和骨关节炎评分",
+    "content": {
+      "description": "这是一份关于您过去一周内膝关节看法的问卷。",
+      "questions": [
+        {
+          "id": "p1",
+          "text": "您弯曲膝关节的频率是多少？",
+          "type": "radio",
+          "options": [
+            { "score": 0, "text": "从不" },
+            { "score": 1, "text": "每月" },
+            { "score": 2, "text": "每周" },
+            { "score": 3, "text": "每天" },
+            { "score": 4, "text": "一直" }
+          ]
+        },
+        {
+          "id": "p2",
+          "text": "您伸直膝关节的程度如何？",
+          "type": "radio",
+          "options": [
+            { "score": 0, "text": "完全没有" },
+            { "score": 1, "text": "轻度" },
+            { "score": 2, "text": "中度" },
+            { "score": 3, "text": "重度" },
+            { "score": 4, "text": "极重度" }
+          ]
+        },
+        {
+          "id": "p3",
+          "text": "您在上下楼梯时感到疼痛吗？",
+          "type": "radio",
+          "options": [
+            { "score": 0, "text": "完全不痛" },
+            { "score": 1, "text": "轻微" },
+            { "score": 2, "text": "中度" },
+            { "score": 3, "text": "严重" },
+            { "score": 4, "text": "极度" }
+          ]
+        },
+        {
+          "id": "p4",
+          "text": "您在坐着或躺着时感到疼痛吗？",
+          "type": "radio",
+          "options": [
+            { "score": 0, "text": "完全不痛" },
+            { "score": 1, "text": "轻微" },
+            { "score": 2, "text": "中度" },
+            { "score": 3, "text": "严重" },
+            { "score": 4, "text": "极度" }
+          ]
+        },
+        {
+          "id": "p5",
+          "text": "您站立时感到疼痛吗？",
+          "type": "radio",
+          "options": [
+            { "score": 0, "text": "完全不痛" },
+            { "score": 1, "text": "轻微" },
+            { "score": 2, "text": "中度" },
+            { "score": 3, "text": "严重" },
+            { "score": 4, "text": "极度" }
+          ]
+        },
+        {
+          "id": "f1",
+          "text": "从坐位站起困难吗？",
+          "type": "radio",
+          "options": [
+            { "score": 0, "text": "没有困难" },
+            { "score": 1, "text": "轻微困难" },
+            { "score": 2, "text": "中度困难" },
+            { "score": 3, "text": "严重困难" },
+            { "score": 4, "text": "极度困难" }
+          ]
+        },
+        {
+          "id": "f2",
+          "text": "从床上起身困难吗？",
+          "type": "radio",
+          "options": [
+            { "score": 0, "text": "没有困难" },
+            { "score": 1, "text": "轻微困难" },
+            { "score": 2, "text": "中度困难" },
+            { "score": 3, "text": "严重困难" },
+            { "score": 4, "text": "极度困难" }
+          ]
+        },
+        {
+          "id": "f3",
+          "text": "穿袜子/脱袜子困难吗？",
+          "type": "radio",
+          "options": [
+            { "score": 0, "text": "没有困难" },
+            { "score": 1, "text": "轻微困难" },
+            { "score": 2, "text": "中度困难" },
+            { "score": 3, "text": "严重困难" },
+            { "score": 4, "text": "极度困难" }
+          ]
+        },
+        {
+          "id": "f4",
+          "text": "坐下困难吗？",
+          "type": "radio",
+          "options": [
+            { "score": 0, "text": "没有困难" },
+            { "score": 1, "text": "轻微困难" },
+            { "score": 2, "text": "中度困难" },
+            { "score": 3, "text": "严重困难" },
+            { "score": 4, "text": "极度困难" }
+          ]
+        },
+        {
+          "id": "qol1",
+          "text": "您能意识到您的膝关节问题吗？",
+          "type": "radio",
+          "options": [
+            { "score": 0, "text": "从不" },
+            { "score": 1, "text": "每月" },
+            { "score": 2, "text": "每周" },
+            { "score": 3, "text": "每天" },
+            { "score": 4, "text": "一直" }
+          ]
+        },
+        {
+          "id": "qol2",
+          "text": "由于膝关节问题，您改变生活方式了吗？",
+          "type": "radio",
+          "options": [
+            { "score": 0, "text": "完全没有" },
+            { "score": 1, "text": "轻微" },
+            { "score": 2, "text": "中度" },
+            { "score": 3, "text": "严重" },
+            { "score": 4, "text": "完全改变" }
+          ]
+        },
+        {
+          "id": "qol3",
+          "text": "总体来说，您觉得膝关节给您带来了多大困难？",
+          "type": "radio",
+          "options": [
+            { "score": 0, "text": "没有困难" },
+            { "score": 1, "text": "轻微困难" },
+            { "score": 2, "text": "中度困难" },
+            { "score": 3, "text": "严重困难" },
+            { "score": 4, "text": "极度困难" }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "code": "HSS_KNEE",
+    "title": "HSS 膝关节评分",
+    "content": {
+      "description": "包含疼痛、功能、活动度、肌力、屈曲畸形和稳定性评估（部分项目需医生查体）。",
+      "questions": [
+        {
+          "id": "pain",
+          "text": "疼痛 (30分)",
+          "type": "radio",
+          "options": [
+            { "score": 30, "text": "无痛 (30分)" },
+            { "score": 15, "text": "轻度 (15分)" },
+            { "score": 10, "text": "中度 (10分)" },
+            { "score": 5, "text": "重度 (5分)" },
+            { "score": 0, "text": "静息痛 (0分)" }
+          ]
+        },
+        {
+          "id": "function_walk",
+          "text": "功能 - 行走 (22分)",
+          "type": "radio",
+          "options": [
+            { "score": 22, "text": "无限制 (22分)" },
+            { "score": 10, "text": ">500-1000米 (10分)" },
+            { "score": 8, "text": "<500米 (8分)" },
+            { "score": 4, "text": "仅限于室内 (4分)" },
+            { "score": 0, "text": "无法行走 (0分)" }
+          ]
+        },
+        {
+          "id": "function_stairs",
+          "text": "功能 - 上下楼梯 (10分)",
+          "type": "radio",
+          "options": [
+            { "score": 10, "text": "正常上下 (10分)" },
+            { "score": 5, "text": "需要扶手 (5分)" },
+            { "score": 2, "text": "困难 (2分)" },
+            { "score": 0, "text": "无法上下 (0分)" }
+          ]
+        },
+        {
+          "id": "function_transfer",
+          "text": "功能 - 转移 (5分)",
+          "type": "radio",
+          "options": [
+            { "score": 5, "text": "无困难 (5分)" },
+            { "score": 2, "text": "需要扶手 (2分)" }
+          ]
+        },
+        {
+          "id": "rom",
+          "text": "关节活动度 (ROM, 18分) - 每度0.14分，最大18分",
+          "type": "radio",
+          "options": [
+            { "score": 18, "text": ">110度 (18分)" },
+            { "score": 16, "text": "95-110度 (约16分)" },
+            { "score": 14, "text": "80-95度 (约14分)" },
+            { "score": 10, "text": "<80度 (约10分)" }
+          ]
+        },
+        {
+          "id": "muscle_strength",
+          "text": "肌力 (10分)",
+          "type": "radio",
+          "options": [
+            { "score": 10, "text": "优 (5级) (10分)" },
+            { "score": 8, "text": "良 (4级) (8分)" },
+            { "score": 4, "text": "可 (3级) (4分)" },
+            { "score": 0, "text": "差 (0-2级) (0分)" }
+          ]
+        },
+        {
+          "id": "deformity",
+          "text": "屈曲畸形 (扣分项)",
+          "type": "radio",
+          "options": [
+            { "score": 0, "text": "无 (不扣分)" },
+            { "score": -2, "text": "5-10度 (扣2分)" },
+            { "score": -5, "text": "10度以上 (扣5分)" }
+          ]
+        },
+        {
+          "id": "instability",
+          "text": "不稳定性 (扣分项)",
+          "type": "radio",
+          "options": [
+            { "score": 0, "text": "无 (不扣分)" },
+            { "score": -5, "text": "轻度 (扣5分)" },
+            { "score": -10, "text": "中重度 (扣10分)" }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "code": "WOMAC",
+    "title": "WOMAC 骨关节炎指数评分",
+    "content": {
+      "description": "请根据过去48小时内的情况回答。0=无，1=轻度，2=中度，3=重度，4=极重度。",
+      "questions": [
+        { "id": "p1", "text": "平地行走时的疼痛程度", "type": "radio", "options": [{"score":0,"text":"无"},{"score":1,"text":"轻度"},{"score":2,"text":"中度"},{"score":3,"text":"重度"},{"score":4,"text":"极重度"}] },
+        { "id": "p2", "text": "上下楼梯时的疼痛程度", "type": "radio", "options": [{"score":0,"text":"无"},{"score":1,"text":"轻度"},{"score":2,"text":"中度"},{"score":3,"text":"重度"},{"score":4,"text":"极重度"}] },
+        { "id": "p3", "text": "夜间卧床时的疼痛程度", "type": "radio", "options": [{"score":0,"text":"无"},{"score":1,"text":"轻度"},{"score":2,"text":"中度"},{"score":3,"text":"重度"},{"score":4,"text":"极重度"}] },
+        { "id": "p4", "text": "坐位或卧位时的疼痛程度", "type": "radio", "options": [{"score":0,"text":"无"},{"score":1,"text":"轻度"},{"score":2,"text":"中度"},{"score":3,"text":"重度"},{"score":4,"text":"极重度"}] },
+        { "id": "p5", "text": "站立时的疼痛程度", "type": "radio", "options": [{"score":0,"text":"无"},{"score":1,"text":"轻度"},{"score":2,"text":"中度"},{"score":3,"text":"重度"},{"score":4,"text":"极重度"}] },
+        { "id": "s1", "text": "早晨醒来时的关节僵硬程度", "type": "radio", "options": [{"score":0,"text":"无"},{"score":1,"text":"轻度"},{"score":2,"text":"中度"},{"score":3,"text":"重度"},{"score":4,"text":"极重度"}] },
+        { "id": "s2", "text": "坐卧休息后开始活动时的僵硬程度", "type": "radio", "options": [{"score":0,"text":"无"},{"score":1,"text":"轻度"},{"score":2,"text":"中度"},{"score":3,"text":"重度"},{"score":4,"text":"极重度"}] },
+        { "id": "f1", "text": "下楼梯困难程度", "type": "radio", "options": [{"score":0,"text":"无"},{"score":1,"text":"轻度"},{"score":2,"text":"中度"},{"score":3,"text":"重度"},{"score":4,"text":"极重度"}] },
+        { "id": "f2", "text": "上楼梯困难程度", "type": "radio", "options": [{"score":0,"text":"无"},{"score":1,"text":"轻度"},{"score":2,"text":"中度"},{"score":3,"text":"重度"},{"score":4,"text":"极重度"}] },
+        { "id": "f3", "text": "从坐位站起困难程度", "type": "radio", "options": [{"score":0,"text":"无"},{"score":1,"text":"轻度"},{"score":2,"text":"中度"},{"score":3,"text":"重度"},{"score":4,"text":"极重度"}] },
+        { "id": "f4", "text": "站立困难程度", "type": "radio", "options": [{"score":0,"text":"无"},{"score":1,"text":"轻度"},{"score":2,"text":"中度"},{"score":3,"text":"重度"},{"score":4,"text":"极重度"}] },
+        { "id": "f5", "text": "弯腰困难程度", "type": "radio", "options": [{"score":0,"text":"无"},{"score":1,"text":"轻度"},{"score":2,"text":"中度"},{"score":3,"text":"重度"},{"score":4,"text":"极重度"}] },
+        { "id": "f6", "text": "平地行走困难程度", "type": "radio", "options": [{"score":0,"text":"无"},{"score":1,"text":"轻度"},{"score":2,"text":"中度"},{"score":3,"text":"重度"},{"score":4,"text":"极重度"}] },
+        { "id": "f7", "text": "进出汽车/公交车困难程度", "type": "radio", "options": [{"score":0,"text":"无"},{"score":1,"text":"轻度"},{"score":2,"text":"中度"},{"score":3,"text":"重度"},{"score":4,"text":"极重度"}] },
+        { "id": "f8", "text": "购物困难程度", "type": "radio", "options": [{"score":0,"text":"无"},{"score":1,"text":"轻度"},{"score":2,"text":"中度"},{"score":3,"text":"重度"},{"score":4,"text":"极重度"}] },
+        { "id": "f9", "text": "穿脱袜子困难程度", "type": "radio", "options": [{"score":0,"text":"无"},{"score":1,"text":"轻度"},{"score":2,"text":"中度"},{"score":3,"text":"重度"},{"score":4,"text":"极重度"}] },
+        { "id": "f10", "text": "起床困难程度", "type": "radio", "options": [{"score":0,"text":"无"},{"score":1,"text":"轻度"},{"score":2,"text":"中度"},{"score":3,"text":"重度"},{"score":4,"text":"极重度"}] },
+        { "id": "f11", "text": "脱袜困难程度", "type": "radio", "options": [{"score":0,"text":"无"},{"score":1,"text":"轻度"},{"score":2,"text":"中度"},{"score":3,"text":"重度"},{"score":4,"text":"极重度"}] },
+        { "id": "f12", "text": "躺在床上困难程度", "type": "radio", "options": [{"score":0,"text":"无"},{"score":1,"text":"轻度"},{"score":2,"text":"中度"},{"score":3,"text":"重度"},{"score":4,"text":"极重度"}] },
+        { "id": "f13", "text": "进出浴缸/淋浴间困难程度", "type": "radio", "options": [{"score":0,"text":"无"},{"score":1,"text":"轻度"},{"score":2,"text":"中度"},{"score":3,"text":"重度"},{"score":4,"text":"极重度"}] },
+        { "id": "f14", "text": "坐姿困难程度", "type": "radio", "options": [{"score":0,"text":"无"},{"score":1,"text":"轻度"},{"score":2,"text":"中度"},{"score":3,"text":"重度"},{"score":4,"text":"极重度"}] },
+        { "id": "f15", "text": "如厕困难程度", "type": "radio", "options": [{"score":0,"text":"无"},{"score":1,"text":"轻度"},{"score":2,"text":"中度"},{"score":3,"text":"重度"},{"score":4,"text":"极重度"}] },
+        { "id": "f16", "text": "做重家务困难程度", "type": "radio", "options": [{"score":0,"text":"无"},{"score":1,"text":"轻度"},{"score":2,"text":"中度"},{"score":3,"text":"重度"},{"score":4,"text":"极重度"}] },
+        { "id": "f17", "text": "做轻家务困难程度", "type": "radio", "options": [{"score":0,"text":"无"},{"score":1,"text":"轻度"},{"score":2,"text":"中度"},{"score":3,"text":"重度"},{"score":4,"text":"极重度"}] }
+      ]
+    }
+  }
+];
+
+
+
