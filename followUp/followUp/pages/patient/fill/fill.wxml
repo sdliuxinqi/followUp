@@ -1,0 +1,140 @@
+<!--pages/patient/fill/fill.wxml-->
+<view class="page-container">
+  <view class="header">
+    <view class="title">{{planTitle}}</view>
+  </view>
+
+  <!-- 问卷内容 -->
+  <view class="question-container">
+    <!-- 基本信息卡片（姓名、性别、出生日期、身高、住院号、住院日期、联系方式，只读） -->
+    <view class="basic-info-card" wx:if="{{basicInfo && basicInfo.length > 0}}">
+      <view class="basic-info-grid">
+        <view class="basic-info-item {{item.type === 'single' ? 'full-width' : ''}}" wx:for="{{basicInfo}}" wx:key="id">
+          <view class="basic-info-label">{{item.title}}</view>
+          <view class="basic-info-input-wrapper">
+            <input wx:if="{{item.type === 'text'}}" 
+              class="basic-info-input {{item.readonly ? 'readonly-input' : ''}}" 
+              placeholder="请输入" 
+              bindinput="onAnswerChange" 
+              data-question-id="{{item.id}}" 
+              value="{{answers[item.id] || ''}}"
+              placeholder-class="placeholder-text"
+              disabled="{{item.readonly}}"
+            />
+            <view wx:if="{{item.type === 'single'}}" class="basic-info-select">
+              <radio-group 
+                bindchange="onSingleSelect" 
+                data-question-id="{{item.id}}"
+                class="basic-info-radio-group"
+              >
+                <label class="basic-info-option" wx:for="{{item.options}}" wx:for-item="option" wx:key="id">
+                  <radio value="{{option.id}}" checked="{{answers[item.id] === option.id}}" disabled="{{item.readonly}}" class="basic-info-radio" />
+                  <text class="basic-info-option-text">{{option.text || option}}</text>
+                </label>
+              </radio-group>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 需填写的字段卡片（体重、手术日期、随访日期） -->
+    <view class="fillable-info-card" wx:if="{{fillableInfo && fillableInfo.length > 0}}">
+      <view class="fillable-info-grid">
+        <view class="fillable-info-item" wx:for="{{fillableInfo}}" wx:key="id">
+          <view class="fillable-info-label">{{item.title}}</view>
+          <view class="fillable-info-input-wrapper">
+            <input 
+              class="fillable-info-input" 
+              placeholder="请输入" 
+              bindinput="onAnswerChange" 
+              data-question-id="{{item.id}}" 
+              value="{{answers[item.id] || ''}}"
+              placeholder-class="placeholder-text"
+            />
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 其他问题 -->
+    <view class="question-item" wx:for="{{questions}}" wx:for-item="question" wx:key="id">
+      <view class="question-header">
+        <text class="question-number">{{index + 1}}</text>
+        <text class="question-text">{{question.title}}</text>
+        <text class="required" wx:if="{{question.required}}">*</text>
+      </view>
+
+      <!-- 文本输入类型 -->
+      <input wx:if="{{question.type === 'text'}}" class="answer-input" 
+        placeholder="请输入您的回答" 
+        bindinput="onAnswerChange" 
+        data-question-id="{{question.id}}" 
+        value="{{answers[question.id] || ''}}"
+        placeholder-class="placeholder-text"
+      />
+
+      <!-- 评分题（滑杆） -->
+      <view wx:if="{{question.type === 'slider'}}" class="slider-container">
+        <slider class="answer-slider" 
+          min="0" max="10" 
+          value="{{answers[question.id] !== undefined ? answers[question.id] : 5}}" 
+          bindchange="onSliderChange" 
+          data-question-id="{{question.id}}"
+        />
+        <text class="slider-value">{{answers[question.id] !== undefined ? answers[question.id] : 5}}分</text>
+      </view>
+
+      <!-- 单选题 -->
+      <view wx:if="{{question.type === 'single'}}" class="options-container">
+        <radio-group class="radio-group" 
+          bindchange="onSingleSelect" 
+          data-question-id="{{question.id}}"
+        >
+          <label class="option-item" wx:for="{{question.options}}" wx:for-item="option" wx:key="id">
+            <radio value="{{option.id}}" checked="{{answers[question.id] === option.id}}" />
+            <text class="option-text">{{option.text}}</text>
+          </label>
+        </radio-group>
+      </view>
+
+      <!-- 多选题 -->
+      <view wx:if="{{question.type === 'multi'}}" class="options-container">
+        <checkbox-group class="checkbox-group" 
+          bindchange="onMultiSelect" 
+          data-question-id="{{question.id}}"
+        >
+          <block wx:for="{{question.options}}" wx:for-item="option" wx:key="*this">
+            <label class="option-item">
+              <checkbox value="{{option.id}}" />
+              <text class="option-text">{{option.text}}</text>
+            </label>
+          </block>
+        </checkbox-group>
+      </view>
+
+      <!-- 视频上传 -->
+      <view wx:if="{{question.type === 'video'}}" class="video-upload">
+        <view wx:if="{{!answers[question.id]}}" class="upload-btn" 
+          bindtap="onVideoUpload" 
+          data-question-id="{{question.id}}"
+        >
+          <text>上传视频</text>
+        </view>
+        <view wx:else class="video-preview">
+          <video src="{{answers[question.id]}}" controls></video>
+          <view class="delete-btn" bindtap="onVideoDelete" data-question-id="{{question.id}}">
+            删除视频
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 提交按钮 -->
+  <view class="submit-container">
+    <button class="submit-btn" bindtap="submitFollowUp" loading="{{submitting}}">
+      提交随访
+    </button>
+  </view>
+</view>

@@ -18,18 +18,33 @@
     </view>
   </view>
 
-  <!-- 详细随访内容（可选项） -->
-  <view class="section-header" wx:if="{{record.optionalAnswers.length > 0}}">
+  <!-- 详细随访内容（功能评分/量表） -->
+  <view class="section-header" wx:if="{{record.functionalAssessments.length > 0}}">
     <view class="section-title">详细随访内容</view>
-    <view class="section-count">{{record.optionalAnswers.length}}个问题</view>
+    <view class="section-count">{{record.functionalAssessments.length}}个功能</view>
   </view>
 
-  <view class="answers-card" wx:if="{{record.optionalAnswers.length > 0}}">
-    <view class="answer-item" wx:for="{{record.optionalAnswers}}" wx:key="index">
-      <view class="question-number">Q{{index + 1}}</view>
-      <view class="question-content">
-        <view class="question-text">{{item.question}}</view>
-        <view class="answer-text">{{item.answer}}</view>
+  <view class="functional-assessments" wx:if="{{record.functionalAssessments.length > 0}}">
+    <view class="assessment-card" wx:for="{{record.functionalAssessments}}" wx:key="id">
+      <view class="assessment-header">
+        <view class="assessment-icon">📊</view>
+        <view class="assessment-info">
+          <view class="assessment-title-row">
+            <view class="assessment-title">{{item.title}}</view>
+            <view class="assessment-score" wx:if="{{item.totalScore !== undefined}}">
+              <text class="score-label">总分</text>
+              <text class="score-value">{{item.totalScore}}分</text>
+            </view>
+          </view>
+          <view class="assessment-description" wx:if="{{item.description}}">{{item.description}}</view>
+        </view>
+      </view>
+      
+      <view class="assessment-questions">
+        <view class="assessment-question-item" wx:for="{{item.questions}}" wx:key="index" wx:for-item="qItem">
+          <view class="question-label">{{qItem.question}}</view>
+          <view class="question-answer">{{qItem.answer}}</view>
+        </view>
       </view>
     </view>
   </view>

@@ -1,4 +1,24 @@
 <!--pages/patient/fill/fill.wxml-->
+<wxs module="utils">
+  // 获取性别显示文本
+  function getGenderText(item, answerValue) {
+    if (!item || !item.options || !answerValue) {
+      return '';
+    }
+    var options = item.options;
+    for (var i = 0; i < options.length; i++) {
+      if (options[i].id === answerValue) {
+        return options[i].text;
+      }
+    }
+    return '';
+  }
+  
+  module.exports = {
+    getGenderText: getGenderText
+  };
+</wxs>
+
 <view class="page-container">
   <view class="header">
     <view class="title">{{planTitle}}</view>
@@ -6,60 +26,65 @@
 
   <!-- 问卷内容 -->
   <view class="question-container">
+    <!-- 基本信息卡片（姓名、性别、出生日期、身高、住院号、住院日期、联系方式，只读） -->
+    <view class="basic-info-card">
+      <view class="basic-info-grid">
+        <view class="basic-info-item" wx:for="{{basicInfo}}" wx:key="id">
+          <view class="basic-info-label">{{item.title}}</view>
+          <view class="basic-info-input-wrapper">
+            <input wx:if="{{item.type === 'text'}}" 
+              class="basic-info-input {{item.readonly ? 'readonly-input' : ''}}" 
+              placeholder="请输入" 
+              bindinput="onAnswerChange" 
+              data-question-id="{{item.id}}" 
+              value="{{answers[item.id] || ''}}"
+              placeholder-class="placeholder-text"
+              disabled="{{item.readonly}}"
+            />
+            <!-- 只读的 single 类型字段（如性别）显示为文本 -->
+            <view wx:if="{{item.type === 'single' && item.readonly}}" class="basic-info-text">
+              <text class="basic-info-text-value">{{utils.getGenderText(item, answers[item.id])}}</text>
+            </view>
+            <!-- 可编辑的 single 类型字段显示为 radio -->
+            <view wx:if="{{item.type === 'single' && !item.readonly}}" class="basic-info-select">
+              <radio-group 
+                bindchange="onSingleSelect" 
+                data-question-id="{{item.id}}"
+                disabled="{{item.readonly}}"
+              >
+                <label class="basic-info-option" wx:for="{{item.options}}" wx:for-item="option" wx:key="id">
+                  <radio value="{{option.id}}" checked="{{answers[item.id] === option.id}}" disabled="{{item.readonly}}" />
+                  <text class="basic-info-option-text">{{option.text}}</text>
+                </label>
+              </radio-group>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 需填写的字段卡片（体重、手术日期、随访日期） -->
+    <view class="fillable-info-card" wx:if="{{fillableInfo.length > 0}}">
+      <view class="fillable-info-grid">
+        <view class="fillable-info-item" wx:for="{{fillableInfo}}" wx:key="id">
+          <view class="fillable-info-label">{{item.title}}</view>
+          <view class="fillable-info-input-wrapper">
+            <input 
+              class="fillable-info-input" 
+              placeholder="请输入" 
+              bindinput="onAnswerChange" 
+              data-question-id="{{item.id}}" 
+              value="{{answers[item.id] || ''}}"
+              placeholder-class="placeholder-text"
+            />
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 其他问题 -->
     <view class="question-item" wx:for="{{questions}}" wx:for-item="question" wx:key="id">
-      <view class="question-header">
-        <text class="question-number">{{index + 1}}</text>
-        <text class="question-text">{{question.title}}</text>
-        <text class="required" wx:if="{{question.required}}">*</text>
-      </view>
-
-      <!-- 文本输入类型 -->
-      <input wx:if="{{question.type === 'text'}}" class="answer-input" 
-        placeholder="请输入您的回答" 
-        bindinput="onAnswerChange" 
-        data-question-id="{{question.id}}" 
-        value="{{answers[question.id] || ''}}"
-        placeholder-class="placeholder-text"
-      />
-
-      <!-- 评分题（滑杆） -->
-      <view wx:if="{{question.type === 'slider'}}" class="slider-container">
-        <slider class="answer-slider" 
-          min="0" max="10" 
-          value="{{answers[question.id] !== undefined ? answers[question.id] : 5}}" 
-          bindchange="onSliderChange" 
-          data-question-id="{{question.id}}"
-        />
-        <text class="slider-value">{{answers[question.id] !== undefined ? answers[question.id] : 5}}分</text>
-      </view>
-
-      <!-- 单选题 -->
-      <view wx:if="{{question.type === 'single'}}" class="options-container">
-        <radio-group class="radio-group" 
-          bindchange="onSingleSelect" 
-          data-question-id="{{question.id}}"
-        >
-          <label class="option-item" wx:for="{{question.options}}" wx:for-item="option" wx:key="id">
-            <radio value="{{option.id}}" checked="{{answers[question.id] === option.id}}" />
-            <text class="option-text">{{option.text}}</text>
-          </label>
-        </radio-group>
-      </view>
-
-      <!-- 多选题 -->
-      <view wx:if="{{question.type === 'multi'}}" class="options-container">
-        <checkbox-group class="checkbox-group" 
-          bindchange="onMultiSelect" 
-          data-question-id="{{question.id}}"
-        >
-          <block wx:for="{{question.options}}" wx:for-item="option" wx:key="*this">
-            <label class="option-item">
-              <checkbox value="{{option.id}}" />
-              <text class="option-text">{{option.text}}</text>
-            </label>
-          </block>
-        </checkbox-group>
-      </view>
+      <view class="question-label">{{question.title}}</view>
 
       <!-- 视频上传 -->
       <view wx:if="{{question.type === 'video'}}" class="video-upload">
@@ -73,6 +98,54 @@
           <video src="{{answers[question.id]}}" controls></video>
           <view class="delete-btn" bindtap="onVideoDelete" data-question-id="{{question.id}}">
             删除视频
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 功能评分（按量表分组） -->
+    <view class="functional-assessments" wx:if="{{functionalAssessments.length > 0}}">
+      <view class="assessment-card" wx:for="{{functionalAssessments}}" wx:key="id">
+        <view class="assessment-header">
+          <view class="assessment-icon">📊</view>
+          <view class="assessment-info">
+            <view class="assessment-title">{{item.title}}</view>
+            <view class="assessment-description" wx:if="{{item.description}}">{{item.description}}</view>
+          </view>
+        </view>
+        
+        <view class="assessment-questions">
+          <view class="assessment-question-item" wx:for="{{item.questions}}" wx:key="id" wx:for-item="qItem">
+            <view class="assessment-question-label">{{qItem.text}}</view>
+
+            <!-- 滑杆评分 -->
+            <view wx:if="{{qItem.type === 'slider'}}" class="slider-container">
+              <slider class="answer-slider" 
+                min="{{qItem.min || 0}}" 
+                max="{{qItem.max || 10}}" 
+                step="{{qItem.step || 1}}"
+                value="{{answers[qItem.id] !== undefined ? answers[qItem.id] : (qItem.min || 0)}}" 
+                bindchange="onSliderChange" 
+                data-question-id="{{qItem.id}}"
+              />
+              <text class="slider-value">{{answers[qItem.id] !== undefined ? answers[qItem.id] : (qItem.min || 0)}}分</text>
+            </view>
+
+            <!-- 单选题（带score） -->
+            <view wx:if="{{qItem.type === 'radio'}}" class="options-container">
+              <radio-group class="radio-group" 
+                bindchange="onSingleSelect" 
+                data-question-id="{{qItem.id}}"
+              >
+                <label class="option-item" wx:for="{{qItem.options}}" wx:for-item="option" wx:key="id">
+                  <radio value="{{option.id}}" checked="{{answers[qItem.id] === option.id}}" />
+                  <view class="option-content">
+                    <text class="option-text">{{option.text}}</text>
+                    <text class="option-score" wx:if="{{option.score !== undefined}}">({{option.score}}分)</text>
+                  </view>
+                </label>
+              </radio-group>
+            </view>
           </view>
         </view>
       </view>

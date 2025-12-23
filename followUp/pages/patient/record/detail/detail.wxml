@@ -17,19 +17,50 @@
     </view>
   </view>
 
-  <!-- 随访内容 -->
-  <view class="section-card">
+  <!-- 基本信息 -->
+  <view class="section-card" wx:if="{{followRecord.basicAnswers && followRecord.basicAnswers.length > 0}}">
     <view class="section-header">
-      <text class="section-title">随访内容</text>
-      <text class="section-count">共{{followRecord.answers.length}}项</text>
+      <text class="section-title">基本信息</text>
     </view>
-    <view class="answer-list">
-      <view class="answer-item" wx:for="{{followRecord.answers}}" wx:key="index">
-        <view class="answer-question">
-          <text class="question-number">{{index + 1}}.</text>
-          <text class="question-text">{{item.question}}</text>
+    <view class="basic-info-grid">
+      <view class="basic-info-item" wx:for="{{followRecord.basicAnswers}}" wx:key="index">
+        <view class="basic-info-label">{{item.question}}</view>
+        <view class="basic-info-value">{{item.answer}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 功能评估（按量表分组） -->
+  <view class="section-card" wx:if="{{followRecord.functionalAssessments && followRecord.functionalAssessments.length > 0}}">
+    <view class="section-header">
+      <text class="section-title">功能评估</text>
+      <text class="section-count">{{followRecord.functionalAssessments.length}}个量表</text>
+    </view>
+    <view class="functional-assessments">
+      <view class="assessment-card" wx:for="{{followRecord.functionalAssessments}}" wx:key="id">
+        <view class="assessment-header">
+          <view class="assessment-icon">📊</view>
+          <view class="assessment-info">
+            <view class="assessment-title-row">
+              <view class="assessment-title">{{item.title}}</view>
+              <view class="assessment-score" wx:if="{{item.totalScore !== undefined}}">
+                <text class="score-label">总分</text>
+                <text class="score-value">{{item.totalScore}}分</text>
+              </view>
+            </view>
+            <view class="assessment-description" wx:if="{{item.description}}">{{item.description}}</view>
+          </view>
         </view>
-        <view class="answer-value">{{item.answer}}</view>
+        
+        <view class="assessment-questions">
+          <view class="assessment-question-item" wx:for="{{item.questions}}" wx:key="index" wx:for-item="qItem">
+            <view class="question-label">{{qItem.question}}</view>
+            <view class="question-answer-row">
+              <view class="question-answer">{{qItem.answer}}</view>
+              <view class="question-score" wx:if="{{qItem.score !== undefined}}">{{qItem.score}}分</view>
+            </view>
+          </view>
+        </view>
       </view>
     </view>
   </view>

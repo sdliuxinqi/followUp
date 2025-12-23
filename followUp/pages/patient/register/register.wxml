@@ -70,11 +70,11 @@
         </view>
         <view class="team-selector" bindtap="showDoctorList">
           <text class="team-value {{formData.teamName ? '' : 'placeholder'}}">
-            {{formData.teamName || '请选择治疗组医生'}}
+            {{formData.teamName || '请选择治疗组'}}
           </text>
           <text class="selector-arrow">›</text>
         </view>
-        <view class="team-hint">点击选择您的治疗组医生</view>
+        <view class="team-hint">点击选择您的治疗组</view>
       </view>
 
       <!-- 提交按钮 -->
@@ -93,7 +93,7 @@
   <view class="modal-mask" wx:if="{{showDoctorModal}}" bindtap="hideDoctorList">
     <view class="modal-container" catchtap="stopPropagation">
       <view class="modal-header">
-        <text class="modal-title">选择治疗组医生</text>
+        <text class="modal-title">选择治疗组</text>
         <text class="modal-close" bindtap="hideDoctorList">✕</text>
       </view>
       <view class="modal-body">
@@ -109,7 +109,7 @@
                 <text class="avatar-icon">👨‍⚕️</text>
               </view>
               <view class="doctor-details">
-                <view class="doctor-name">{{item.name}}</view>
+                <view class="doctor-name">{{item.teamDisplayName}}</view>
                 <view class="doctor-meta">
                   <text class="doctor-title">{{item.title}}</text>
                   <text class="doctor-dept">{{item.department}}</text>

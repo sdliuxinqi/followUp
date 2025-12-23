@@ -24,14 +24,18 @@
     return count;
   };
   
-  // 获取选中的时间标签
-  var getSelectedTimeLabel = function(timeOptions, timeType) {
+  // 获取选中的时间标签（已废弃，现在支持多选）
+  var getSelectedTimeLabel = function(timeOptions, timeTypes) {
+    if (!timeTypes || timeTypes.length === 0) {
+      return '';
+    }
+    var labels = [];
     for (var i = 0; i < timeOptions.length; i++) {
-      if (timeOptions[i].value === timeType) {
-        return timeOptions[i].label;
+      if (timeTypes.indexOf(timeOptions[i].value) !== -1) {
+        labels.push(timeOptions[i].label);
       }
     }
-    return '';
+    return labels.join('、');
   };
   
   // 判断是否可以进入下一步
@@ -39,8 +43,8 @@
     if (currentStep === 0) {
       // 第一步：检查计划名称和是否选择了时间节点
       var title = formData.title || '';
-      var timeType = formData.timeType || '';
-      return title.trim() !== '' && timeType !== '';
+      var timeTypes = formData.timeTypes || [];
+      return title.trim() !== '' && timeTypes.length > 0;
     } else if (currentStep === 1) {
       // 第二步：检查是否选择了随访内容
       // 计算选中的问题总数
@@ -94,22 +98,20 @@
       
       <view class="panel-header">
         <text class="panel-title">选择随访时间节点</text>
-        <text class="panel-subtitle">请选择一个适合的随访时间点</text>
+        <text class="panel-subtitle">请选择适合的随访时间点（可多选）</text>
       </view>
       
-      <view class="time-options">
-        <block wx:for="{{timeOptions}}" wx:key="value">
-          <view class="time-option-card {{formData.timeType === item.value ? 'selected' : ''}}" bindtap="selectTime" data-value="{{item.value}}">
-            <view class="time-icon">📋</view>
-            <view class="time-content">
-              <text class="time-label">{{item.label}}</text>
-              <text class="time-desc" wx:if="{{item.value === 'preoperative'}}">手术前的基础评估</text>
-              <text class="time-desc" wx:elif="{{item.value === 'preDischarge'}}">出院前健康状况评估</text>
-              <text class="time-desc" wx:elif="{{item.value === 'oneMonthPostOp'}}">术后短期恢复评估</text>
-              <text class="time-desc" wx:elif="{{item.value === 'threeMonthsPostOp'}}">术后中期恢复评估</text>
-              <text class="time-desc" wx:elif="{{item.value === 'sixMonthsPostOp'}}">术后长期恢复评估</text>
-            </view>
-            <view class="time-check" wx:if="{{formData.timeType === item.value}}">✓</view>
+      <!-- 选择时间点按钮 -->
+      <view class="time-select-btn" bindtap="openTimeModal">
+        <text class="btn-text">选择时间点</text>
+        <text class="btn-arrow">›</text>
+      </view>
+      
+      <!-- 已选择的时间点显示 -->
+      <view class="selected-times" wx:if="{{formData.timeTypes && formData.timeTypes.length > 0}}">
+        <block wx:for="{{timeOptions}}" wx:key="value" wx:for-item="option">
+          <view class="selected-time-tag" wx:if="{{option.selected}}">
+            <text>{{option.label}}</text>
           </view>
         </block>
       </view>
@@ -162,22 +164,27 @@
       </view>
       <view class="scale-list">
         <block wx:for="{{assessmentScales}}" wx:key="id">
-          <view class="scale-item">
-            <view class="scale-header" bindtap="toggleScale" data-id="{{item.id}}">
-              <view class="scale-info">
+          <view class="scale-item {{item.allSelected ? 'selected' : ''}}">
+            <view class="scale-header">
+              <view class="scale-checkbox" bindtap="toggleScaleQuestions" data-scale-id="{{item.id}}">
+                <text wx:if="{{item.allSelected}}">✓</text>
+              </view>
+              <view class="scale-info" bindtap="toggleScaleQuestions" data-scale-id="{{item.id}}">
                 <view class="scale-title">{{item.title}}</view>
                 <view class="scale-description">{{item.description}}</view>
               </view>
-              <view class="scale-arrow">{{item.expanded ? '▼' : '▶'}}</view>
+              <view class="scale-arrow" catchtap="toggleScale" data-id="{{item.id}}">
+                {{item.expanded ? '▼' : '▶'}}
+              </view>
             </view>
             
-            <!-- 量表问题列表 -->
+            <!-- 量表问题列表（只读展示） -->
             <view class="scale-questions" wx:if="{{item.expanded}}">
               <view class="scale-questions-header">
                 <text class="questions-count">包含 {{item.questions.length}} 个问题</text>
               </view>
               <block wx:for="{{item.questions}}" wx:key="id" wx:for-item="question" wx:for-index="qIndex">
-                <view class="question-item {{question.selected ? 'selected' : ''}}" bindtap="toggleQuestion" data-id="{{question.id}}">
+                <view class="question-item-readonly">
                   <view class="question-info">
                     <view class="question-header-row">
                       <view class="question-type">{{question.typeName}}</view>
@@ -194,16 +201,8 @@
                       <text>{{question.options.length}}个选项</text>
                     </view>
                   </view>
-                  <view class="question-checkbox">{{question.selected ? '✓' : ''}}</view>
                 </view>
               </block>
-              
-              <!-- 选择整个量表的按钮 -->
-              <view class="scale-action">
-                <button class="select-all-button" bindtap="toggleScaleQuestions" data-scale-id="{{item.id}}">
-                  {{item.allSelected ? '取消选择整个量表' : '选择整个量表'}}
-                </button>
-              </view>
             </view>
           </view>
         </block>
@@ -252,15 +251,15 @@
           <view class="summary-icon">📅</view>
           <view class="summary-content">
             <view class="summary-label">时间节点</view>
-            <view class="summary-value">{{utils.getSelectedTimeLabel(timeOptions, formData.timeType)}}</view>
+            <view class="summary-value">{{utils.getSelectedTimeLabel(timeOptions, formData.timeTypes)}}</view>
           </view>
         </view>
         
         <view class="summary-card">
           <view class="summary-icon">📝</view>
           <view class="summary-content">
-            <view class="summary-label">包含题目</view>
-            <view class="summary-value">{{utils.getSelectedQuestionsCount(availableQuestions, assessmentScales)}}个问题</view>
+            <view class="summary-label">包含项目</view>
+            <view class="summary-value">{{utils.getSelectedQuestionsCount(availableQuestions, assessmentScales)}}个项目</view>
           </view>
         </view>
       </view>
@@ -277,5 +276,32 @@
     <button class="prev-button" wx:if="{{currentStep > 0}}" bindtap="prevStep">上一步</button>
     <button class="next-button" wx:if="{{currentStep < 2}}" bindtap="nextStep" disabled="{{!utils.canGoNext(currentStep, formData, availableQuestions, assessmentScales)}}">下一步</button>
     <button class="create-button" wx:if="{{currentStep === 2}}" bindtap="createPlan" loading="{{loading}}">创建随访计划</button>
+  </view>
+
+  <!-- 时间选择弹窗 -->
+  <view class="time-modal-mask" wx:if="{{showTimeModal}}" bindtap="closeTimeModal">
+    <view class="time-modal-container" catchtap="stopPropagation">
+      <view class="time-modal-header">
+        <text class="time-modal-title">选择随访时间节点</text>
+        <text class="time-modal-close" bindtap="closeTimeModal">✕</text>
+      </view>
+      <scroll-view class="time-modal-body" scroll-y>
+        <view class="time-modal-list">
+          <view class="time-modal-item {{item.selected ? 'selected' : ''}} {{item.isDaily ? 'daily-item' : ''}}" 
+                wx:for="{{timeOptions}}" 
+                wx:key="value"
+                bindtap="toggleTimeOption"
+                data-index="{{index}}">
+            <view class="time-modal-checkbox">
+              <text wx:if="{{item.selected}}">✓</text>
+            </view>
+            <text class="time-modal-label {{item.isDaily ? 'daily-label' : ''}}">{{item.label}}</text>
+          </view>
+        </view>
+      </scroll-view>
+      <view class="time-modal-footer">
+        <button class="time-modal-confirm" bindtap="confirmTimeSelection">确认</button>
+      </view>
+    </view>
   </view>
 </view>

@@ -36,7 +36,7 @@
 
   <!-- 随访计划列表标题 -->
   <view class="section-header" wx:if="{{plans.length > 0}}">
-    <view class="section-title">我的计划</view>
+    <view class="section-title">计划列表</view>
     <view class="section-count">共{{plans.length}}个</view>
   </view>
 
@@ -52,6 +52,10 @@
             <view class="plan-stat-item">
               <text class="stat-icon">👤</text>
               <text class="stat-text">{{item.participantCount}}人参与</text>
+            </view>
+            <view class="plan-stat-item">
+              <text class="stat-icon">👨‍⚕️</text>
+              <text class="stat-text">{{item.creatorName || '未知'}}医生团队</text>
             </view>
             <view class="plan-stat-item">
               <text class="stat-icon">📅</text>

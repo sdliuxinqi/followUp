@@ -28,15 +28,30 @@
   <!-- 我的随访列表 -->
   <view class="records-section">
     <view class="section-header">
-      <text class="section-title">我的随访记录</text>
+      <text class="section-title">我的随访计划</text>
       <text class="record-count">共{{followRecords.length}}条</text>
     </view>
     
-    <view class="follow-list">
-      <block wx:if="{{followRecords.length > 0}}">
-        <view class="follow-item" wx:for="{{followRecords}}" wx:key="id" bindtap="viewFollowDetail" data-id="{{item.id}}">
+    <!-- 待完成的随访 -->
+    <block wx:if="{{pendingRecords.length > 0}}">
+      <view class="group-header">
+        <text class="group-title">待办事项</text>
+        <text class="group-count">{{pendingRecords.length}}条</text>
+      </view>
+      <view class="follow-list">
+        <view class="follow-item {{item.status === 'pending' ? 'status-pending' : item.status === 'completed' ? 'status-completed' : 'status-expired'}} {{item.timeType === 'dailySelfAssessment' ? 'daily-follow' : ''}}" wx:for="{{pendingRecords}}" wx:key="id" bindtap="viewFollowDetail" data-id="{{item.id}}" data-status="{{item.status}}" data-plan-id="{{item.planId || item.id}}" data-time-type="{{item.timeType}}">
           <view class="follow-info">
-            <view class="follow-title">{{item.planTitle}}</view>
+            <view class="follow-title-row">
+              <view class="follow-title-wrapper">
+                <text class="daily-icon" wx:if="{{item.timeType === 'dailySelfAssessment'}}">📅</text>
+                <view class="follow-title">{{item.planTitle}}</view>
+              </view>
+              <view class="status-badge status-{{item.status}}">
+                <text wx:if="{{item.status === 'pending'}}">待完成</text>
+                <text wx:elif="{{item.status === 'completed'}}">已完成</text>
+                <text wx:else>已失效</text>
+              </view>
+            </view>
             <view class="follow-meta">
               <text class="doctor-name">👨‍⚕️ {{item.doctorName}}</text>
             </view>
@@ -44,14 +59,46 @@
           </view>
           <view class="arrow-icon">›</view>
         </view>
-      </block>
-      <block wx:else>
-        <view class="empty-state">
-          <text class="empty-icon">📋</text>
-          <text class="empty-text">暂无随访记录</text>
-          <text class="empty-hint">请点击上方"扫码随访"参与医生的随访计划</text>
+      </view>
+    </block>
+    
+    <!-- 已完成/已失效的随访 -->
+    <block wx:if="{{otherRecords.length > 0}}">
+      <view class="group-header other-group">
+        <text class="group-title">历史记录</text>
+        <text class="group-count">{{otherRecords.length}}条</text>
+      </view>
+      <view class="follow-list">
+        <view class="follow-item {{item.status === 'pending' ? 'status-pending' : item.status === 'completed' ? 'status-completed' : 'status-expired'}} {{item.timeType === 'dailySelfAssessment' ? 'daily-follow' : ''}}" wx:for="{{otherRecords}}" wx:key="id" bindtap="viewFollowDetail" data-id="{{item.id}}">
+          <view class="follow-info">
+            <view class="follow-title-row">
+              <view class="follow-title-wrapper">
+                <text class="daily-icon" wx:if="{{item.timeType === 'dailySelfAssessment'}}">📅</text>
+                <view class="follow-title">{{item.planTitle}}</view>
+              </view>
+              <view class="status-badge status-{{item.status}}">
+                <text wx:if="{{item.status === 'pending'}}">待完成</text>
+                <text wx:elif="{{item.status === 'completed'}}">已完成</text>
+                <text wx:else>已失效</text>
+              </view>
+            </view>
+            <view class="follow-meta">
+              <text class="doctor-name">👨‍⚕️ {{item.doctorName}}</text>
+            </view>
+            <view class="follow-time">🕐 {{item.fillTime}}</view>
+          </view>
+          <view class="arrow-icon">›</view>
         </view>
-      </block>
-    </view>
+      </view>
+    </block>
+    
+    <!-- 空状态 -->
+    <block wx:if="{{followRecords.length === 0}}">
+      <view class="empty-state">
+        <text class="empty-icon">📋</text>
+        <text class="empty-text">暂无随访记录</text>
+        <text class="empty-hint">请点击上方"扫码随访"参与医生的随访计划</text>
+      </view>
+    </block>
   </view>
 </view>

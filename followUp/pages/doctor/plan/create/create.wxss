@@ -1,11 +1,15 @@
 /* pages/doctor/plan/create/create.wxss */
 page {
   background: linear-gradient(180deg, #e6f7ff 0%, #ffffff 100%);
+  height: 100%;
+  min-height: 100vh;
 }
 
 .page-container {
   padding: 20rpx;
+  padding-bottom: 160rpx; /* 为底部按钮留出空间 */
   min-height: 100vh;
+  box-sizing: border-box;
 }
 
 .steps {
@@ -321,9 +325,14 @@ page {
   box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.12);
 }
 
+.scale-item.selected {
+  border-color: #4A90E2;
+  background: linear-gradient(135deg, #f0f8ff 0%, #ffffff 100%);
+  box-shadow: 0 4rpx 20rpx rgba(74, 144, 226, 0.2);
+}
+
 .scale-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   padding: 28rpx;
   background-color: #fafafa;
@@ -334,8 +343,35 @@ page {
   background-color: #f0f0f0;
 }
 
+.scale-checkbox {
+  width: 44rpx;
+  height: 44rpx;
+  border: 2rpx solid #DDD;
+  border-radius: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+  background: #FFFFFF;
+}
+
+.scale-item.selected .scale-checkbox {
+  background: #4A90E2;
+  border-color: #4A90E2;
+  color: #FFFFFF;
+}
+
+.scale-item.selected .scale-checkbox text {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #FFFFFF;
+}
+
 .scale-info {
   flex: 1;
+  cursor: pointer;
 }
 
 .scale-title {
@@ -343,6 +379,10 @@ page {
   font-weight: bold;
   color: #333;
   margin-bottom: 8rpx;
+}
+
+.scale-item.selected .scale-title {
+  color: #4A90E2;
 }
 
 .scale-description {
@@ -354,6 +394,21 @@ page {
 .scale-arrow {
   font-size: 24rpx;
   color: #999;
+  padding: 16rpx 20rpx;
+  margin-left: 12rpx;
+  min-width: 60rpx;
+  min-height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.scale-arrow:active {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 8rpx;
 }
 
 .scale-questions {
@@ -410,25 +465,73 @@ page {
   line-height: 1.4;
 }
 
-.scale-action {
-  margin-top: 20rpx;
-  padding-top: 20rpx;
-  border-top: 1rpx solid #e5e5e5;
+/* 只读问题项（用于量表内的问题展示） */
+.question-item-readonly {
   display: flex;
-  justify-content: center;
-}
-
-.select-all-button {
-  padding: 12rpx 32rpx;
-  background-color: #4A90E2;
-  color: #fff;
-  border: none;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20rpx;
+  border: 1rpx solid #e5e5e5;
   border-radius: 8rpx;
-  font-size: 24rpx;
+  background-color: #ffffff;
+  margin-bottom: 12rpx;
 }
 
-.select-all-button::after {
-  border: none;
+.question-item-readonly:last-child {
+  margin-bottom: 0;
+}
+
+/* 选择时间点按钮 */
+.time-select-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28rpx 32rpx;
+  background: #FFFFFF;
+  border: 2rpx solid #4A90E2;
+  border-radius: 12rpx;
+  margin-bottom: 24rpx;
+  transition: all 0.3s ease;
+  box-shadow: 0 2rpx 8rpx rgba(74, 144, 226, 0.1);
+}
+
+.time-select-btn:active {
+  background: linear-gradient(135deg, #e6f7ff 0%, #bae7ff 100%);
+  transform: scale(0.98);
+}
+
+.btn-text {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #4A90E2;
+}
+
+.btn-arrow {
+  font-size: 40rpx;
+  color: #4A90E2;
+  font-weight: 300;
+}
+
+/* 已选择的时间点标签 */
+.selected-times {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-top: 20rpx;
+}
+
+.selected-time-tag {
+  padding: 12rpx 24rpx;
+  background: linear-gradient(135deg, #e6f7ff 0%, #bae7ff 100%);
+  border: 1rpx solid #4A90E2;
+  border-radius: 20rpx;
+  font-size: 26rpx;
+  color: #4A90E2;
+  font-weight: 500;
+}
+
+.selected-time-tag text {
+  display: block;
 }
 
 .time-options {
@@ -651,15 +754,16 @@ page {
 .bottom-buttons {
   display: flex;
   gap: 20rpx;
-  padding: 20rpx 0;
-  position: sticky;
+  padding: 20rpx;
+  position: fixed;
   bottom: 0;
-  background: linear-gradient(180deg, transparent 0%, #e6f7ff 50%);
+  left: 0;
+  right: 0;
+  background: linear-gradient(180deg, transparent 0%, #e6f7ff 80%, #e6f7ff 100%);
   padding-top: 20rpx;
-  padding-bottom: 40rpx;
-  margin: 0 -20rpx;
-  padding-left: 20rpx;
-  padding-right: 20rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  z-index: 100;
+  box-sizing: border-box;
 }
 
 .prev-button,
@@ -719,5 +823,183 @@ page {
 .prev-button::after,
 .next-button::after,
 .create-button::after {
+  border: none;
+}
+
+/* 时间选择弹窗 */
+.time-modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.time-modal-container {
+  width: 100%;
+  max-height: 80vh;
+  background: #FFFFFF;
+  border-radius: 32rpx 32rpx 0 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.time-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx;
+  border-bottom: 2rpx solid #F0F0F0;
+}
+
+.time-modal-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.time-modal-close {
+  font-size: 48rpx;
+  color: #999;
+  line-height: 1;
+  padding: 0 8rpx;
+}
+
+.time-modal-body {
+  flex: 1;
+  max-height: calc(80vh - 200rpx);
+  overflow-y: auto;
+}
+
+.time-modal-list {
+  padding: 16rpx 0;
+}
+
+.time-modal-item {
+  display: flex;
+  align-items: center;
+  padding: 28rpx 32rpx;
+  border-bottom: 1rpx solid #F5F5F5;
+  transition: all 0.3s ease;
+}
+
+.time-modal-item:active {
+  background: #F8F9FA;
+}
+
+.time-modal-item.selected {
+  background: linear-gradient(135deg, #e6f7ff 0%, #f0f8ff 100%);
+}
+
+.time-modal-checkbox {
+  width: 44rpx;
+  height: 44rpx;
+  border: 2rpx solid #DDD;
+  border-radius: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+  background: #FFFFFF;
+}
+
+.time-modal-item.selected .time-modal-checkbox {
+  background: #4A90E2;
+  border-color: #4A90E2;
+  color: #FFFFFF;
+}
+
+.time-modal-item.selected .time-modal-checkbox text {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #FFFFFF;
+}
+
+.time-modal-label {
+  flex: 1;
+  font-size: 30rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.time-modal-item.selected .time-modal-label {
+  color: #4A90E2;
+  font-weight: 600;
+}
+
+/* 日常自我评估特殊样式 */
+.time-modal-item.daily-item {
+  border-bottom: 2rpx solid #E8F4FD;
+  margin-bottom: 8rpx;
+  padding-bottom: 28rpx;
+}
+
+.time-modal-label.daily-label {
+  color: #7BCA9A;
+  font-weight: 600;
+}
+
+.time-modal-item.daily-item.selected .time-modal-label.daily-label {
+  color: #5BA87D;
+  font-weight: 700;
+}
+
+.time-modal-item.daily-item.selected {
+  background: linear-gradient(135deg, #E6F7E6 0%, #F0FFF4 100%);
+}
+
+.time-modal-footer {
+  padding: 24rpx 32rpx;
+  border-top: 2rpx solid #F0F0F0;
+  background: #FFFFFF;
+}
+
+.time-modal-confirm {
+  width: 100%;
+  height: 88rpx;
+  background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+  color: #FFFFFF;
+  font-size: 32rpx;
+  font-weight: 600;
+  border-radius: 16rpx;
+  border: none;
+  box-shadow: 0 4rpx 16rpx rgba(74, 144, 226, 0.3);
+  transition: all 0.3s ease;
+}
+
+.time-modal-confirm:active {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 12rpx rgba(74, 144, 226, 0.25);
+}
+
+.time-modal-confirm::after {
   border: none;
 }

@@ -2,7 +2,7 @@ const AV = require('../../../../libs/av-core-min.js')
 const util = require('../../../../utils/util')
 
 Page({
-  data: {
+    data: {
     planId: '',
     patientId: '',
     record: {
@@ -12,7 +12,7 @@ Page({
       status: '',
       answers: [],
       requiredAnswers: [],
-      optionalAnswers: [],
+      functionalAssessments: [],
       requiredCount: 0,
       aiReport: {
         summary: '',
@@ -41,28 +41,56 @@ Page({
       const answers = [
           { question: '姓名', answer: '张三', required: true },
           { question: '性别', answer: '男', required: true },
-          { question: '年龄', answer: '45岁', required: true },
+          { question: '出生日期', answer: '1979-05-15', required: true },
           { question: '身高', answer: '175cm', required: true },
           { question: '体重', answer: '70kg', required: true },
+          { question: '住院号', answer: '2024110001', required: true },
           { question: '住院日期', answer: '2024-11-01', required: true },
           { question: '手术日期', answer: '2024-11-05', required: true },
           { question: '随访日期', answer: '2024-12-17', required: true },
-          { question: '联系方式', answer: '138****5678', required: true },
-          { question: '视觉模拟疼痛评分（0-10分）', answer: '3分', required: false },
-          { question: '行动能力', answer: '我四处走动有些困难', required: false },
-          { question: '自我照顾', answer: '我自己洗澡或穿衣有些困难', required: false },
-          { question: '日常活动（如工作、学习、家务、家庭或休闲活动）', answer: '我进行日常活动有些困难', required: false },
-          { question: '疼痛或不舒服', answer: '我有轻微的疼痛或不舒服', required: false },
-          { question: '焦虑或抑郁', answer: '我没有焦虑或抑郁', required: false },
-          { question: '您怎么形容您膝盖通常的疼痛程度？', answer: '非常轻微', required: false },
-          { question: '您能够走多长时间才因为膝盖疼痛而不得不停下来？', answer: '16到60分钟', required: false },
-          { question: '您的膝盖因为疼痛会在夜里把您弄醒吗？', answer: '仅有一两个晚上', required: false },
-          { question: '您可以自己走下楼梯吗？', answer: '有时可以', required: false }
+          { question: '联系方式', answer: '138****5678', required: true }
       ];
       
-      // 分离必填项和可选项
+      // 功能评分/量表数据（按功能分组）
+      const functionalAssessments = [
+        {
+          id: 'VAS_PAIN',
+          title: '视觉模拟疼痛评分 (VAS)',
+          description: '请在标尺上指出您目前的疼痛程度。',
+          questions: [
+            { question: '0代表无痛，10代表剧痛', answer: '3分', score: 3 }
+          ],
+          totalScore: 3
+        },
+        {
+          id: 'EQ-5D-5L',
+          title: '健康状况描述 (EQ-5D-5L)',
+          description: '在每个标题下，请勾选最能描述您**今天**健康状况的一个选项。',
+          questions: [
+            { question: '行动能力', answer: '我四处走动有些困难', score: 2 },
+            { question: '自我照顾', answer: '我自己洗澡或穿衣有些困难', score: 2 },
+            { question: '日常活动（如工作、学习、家务、家庭或休闲活动）', answer: '我进行日常活动有些困难', score: 2 },
+            { question: '疼痛或不舒服', answer: '我有轻微的疼痛或不舒服', score: 2 },
+            { question: '焦虑或抑郁', answer: '我没有焦虑或抑郁', score: 1 }
+          ],
+          totalScore: 9
+        },
+        {
+          id: 'OKS',
+          title: '牛津膝关节评分 (OKS)',
+          description: '请根据您的实际情况回答以下问题。',
+          questions: [
+            { question: '您怎么形容您膝盖通常的疼痛程度？', answer: '非常轻微', score: 5 },
+            { question: '您能够走多长时间才因为膝盖疼痛而不得不停下来？', answer: '16到60分钟', score: 4 },
+            { question: '您的膝盖因为疼痛会在夜里把您弄醒吗？', answer: '仅有一两个晚上', score: 4 },
+            { question: '您可以自己走下楼梯吗？', answer: '有时可以', score: 3 }
+          ],
+          totalScore: 16
+        }
+      ];
+      
+      // 分离必填项
       const requiredAnswers = answers.filter(item => item.required);
-      const optionalAnswers = answers.filter(item => !item.required);
       const requiredCount = requiredAnswers.length;
       
       const mock = {
@@ -72,7 +100,7 @@ Page({
         status: '已完成',
         answers: answers,
         requiredAnswers: requiredAnswers,
-        optionalAnswers: optionalAnswers,
+        functionalAssessments: functionalAssessments,
         requiredCount: requiredCount,
         aiReport: {
           summary: '患者张三，男性，45岁，BMI为22.9（正常范围），于2024年11月5日接受膝关节手术治疗，术后已42天。根据本次随访评估，术后康复进展整体良好。视觉模拟疼痛评分为3分，处于可接受范围；牛津膝关节评分显示膝盖疼痛程度为"非常轻微"；EQ-5D-5L健康量表评估显示行动能力和日常活动存在轻度困难，但自我照顾能力基本保持，无焦虑抑郁情况。患者能够持续行走16-60分钟，夜间偶有疼痛，下楼梯能力有待提高。建议继续康复训练，加强下肢力量练习。',
@@ -109,8 +137,8 @@ Page({
     query.first().then(record => {
       if (!record) return
       const answers = record.get('answers') || [];
+      const functionalAssessments = record.get('functionalAssessments') || [];
       const requiredAnswers = answers.filter(item => item.required);
-      const optionalAnswers = answers.filter(item => !item.required);
       const requiredCount = requiredAnswers.length;
       
       const formatted = {
@@ -120,7 +148,7 @@ Page({
         status: record.get('status'),
         answers: answers,
         requiredAnswers: requiredAnswers,
-        optionalAnswers: optionalAnswers,
+        functionalAssessments: functionalAssessments,
         requiredCount: requiredCount,
         aiReport: record.get('aiReport') || { summary: '', details: [], suggestions: [] }
       }

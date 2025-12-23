@@ -108,19 +108,22 @@ Page({
           id: '1',
           title: '术后康复随访计划',
           createdAt: formatTime(new Date()),
-          participantCount: 15
+          participantCount: 15,
+          creatorName: '张'
         },
         {
           id: '2',
           title: '慢性病管理随访',
           createdAt: formatTime(new Date(Date.now() - 86400000)),
-          participantCount: 32
+          participantCount: 32,
+          creatorName: '李'
         },
         {
           id: '3',
           title: '术前评估随访',
           createdAt: formatTime(new Date(Date.now() - 172800000)),
-          participantCount: 8
+          participantCount: 8,
+          creatorName: '王'
         }
       ];
       

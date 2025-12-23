@@ -324,28 +324,45 @@ page {
   font-weight: 500;
 }
 
-/* 右上角移除按钮 */
-.remove-button-top {
+/* 右上角操作按钮 */
+.member-actions {
   position: absolute;
   top: 20rpx;
   right: 20rpx;
-  padding: 8rpx 20rpx;
-  background: linear-gradient(135deg, #ff4d4f, #ff7875);
-  color: #ffffff;
-  border-radius: 20rpx;
+  z-index: 10;
+}
+
+.action-button {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.05);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24rpx;
-  font-weight: 600;
-  box-shadow: 0 4rpx 12rpx rgba(255, 77, 79, 0.3);
-  z-index: 10;
+  font-size: 32rpx;
+  color: #666;
   transition: all 0.3s;
 }
 
-.remove-button-top:active {
+.action-button:active {
+  background: rgba(0, 0, 0, 0.1);
   transform: scale(0.95);
-  box-shadow: 0 2rpx 8rpx rgba(255, 77, 79, 0.4);
+}
+
+/* 管理员卡片样式 */
+.member-card.admin-card {
+  border-left: 8rpx solid #52c41a;
+}
+
+.member-card.admin-card::before {
+  background: linear-gradient(180deg, #52c41a 0%, #73d13d 100%);
+}
+
+/* 管理员标签 */
+.admin-tag {
+  background: linear-gradient(135deg, #f6ffed, #d9f7be) !important;
+  color: #52c41a !important;
 }
 
 /* 弹窗遮罩 */
@@ -503,10 +520,35 @@ page {
   align-self: flex-start;
 }
 
-.select-icon {
-  font-size: 40rpx;
-  color: #cbd5e0;
+.doctor-status {
   margin-left: 16rpx;
+  flex-shrink: 0;
+}
+
+.status-text {
+  font-size: 24rpx;
+  color: #52c41a;
+  background: #f6ffed;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  border: 1rpx solid #b7eb8f;
+  font-weight: 500;
+}
+
+.add-icon {
+  font-size: 40rpx;
+  color: #4A90E2;
+  font-weight: 300;
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.doctor-item.added {
+  background: #f6ffed;
+  border-left: 4rpx solid #52c41a;
 }
 
 /* 空状态 */
@@ -526,4 +568,79 @@ page {
 .empty-doctor .empty-text {
   font-size: 28rpx;
   color: #718096;
+}
+
+/* 成员操作菜单 */
+.action-menu-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeInMenu 0.3s ease;
+}
+
+@keyframes fadeInMenu {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.action-menu {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 32rpx 32rpx 0 0;
+  padding: 24rpx 0;
+  animation: slideUpMenu 0.3s ease;
+}
+
+@keyframes slideUpMenu {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.action-menu-item {
+  display: flex;
+  align-items: center;
+  padding: 28rpx 32rpx;
+  font-size: 30rpx;
+  color: #333;
+  transition: background 0.2s;
+}
+
+.action-menu-item:active {
+  background: #f5f5f5;
+}
+
+.action-menu-item.danger {
+  color: #ff4d4f;
+}
+
+.action-menu-item.cancel {
+  border-top: 1rpx solid #f0f0f0;
+  margin-top: 8rpx;
+  padding-top: 28rpx;
+  justify-content: center;
+  color: #666;
+}
+
+.action-icon {
+  font-size: 32rpx;
+  margin-right: 16rpx;
+}
+
+.action-text {
+  flex: 1;
 }

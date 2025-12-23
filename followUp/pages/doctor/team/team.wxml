@@ -1,9 +1,9 @@
 <!--pages/doctor/team/team.wxml-->
 <view class="page-container">
   
-  <!-- 添加成员按钮 -->
+  <!-- 团队成员管理按钮 -->
   <view class="add-member-button" bindtap="showAddMemberDialog" wx:if="{{isLeader}}">
-    <text class="add-button-text">添加团队成员</text>
+    <text class="add-button-text">团队成员管理</text>
   </view>
 
   <!-- 团队负责人 -->
@@ -63,10 +63,12 @@
 
   <!-- 普通成员列表 -->
   <view class="team-list" wx:if="{{normalMembers.length > 0}}">
-    <view class="member-card" wx:for="{{normalMembers}}" wx:key="id">
-      <!-- 移除按钮（右上角） -->
-      <view class="remove-button-top" bindtap="removeMember" data-id="{{item.id}}" wx:if="{{isLeader}}">
-        <text>移除</text>
+    <view class="member-card {{item.isAdmin ? 'admin-card' : ''}}" wx:for="{{normalMembers}}" wx:key="id">
+      <!-- 操作按钮（右上角） -->
+      <view class="member-actions" wx:if="{{isLeader}}">
+        <view class="action-button" bindtap="showMemberActions" data-id="{{item.id}}" data-index="{{index}}">
+          <text>⋮</text>
+        </view>
       </view>
       
       <view class="member-header">
@@ -78,8 +80,9 @@
           <view class="name-row">
             <text class="name">{{item.name}}</text>
           </view>
-          <view class="member-type-tag">
-            <text>团队成员</text>
+          <view class="member-type-tag {{item.isAdmin ? 'admin-tag' : ''}}">
+            <text wx:if="{{item.isAdmin}}">管理员</text>
+            <text wx:else>团队成员</text>
           </view>
         </view>
       </view>
@@ -128,16 +131,16 @@
 <view class="modal-mask" wx:if="{{showAddDialog}}" bindtap="hideAddMemberDialog" catchtouchmove="preventMove">
   <view class="modal-container" catchtap="preventClose">
     <view class="modal-header">
-      <text class="modal-title">选择医生</text>
+      <text class="modal-title">团队成员管理</text>
       <view class="modal-close" bindtap="hideAddMemberDialog">✕</view>
     </view>
     
     <view class="modal-body">
       <scroll-view class="doctor-list" scroll-y="{{true}}">
-        <view class="doctor-item" 
+        <view class="doctor-item {{item.isAdded ? 'added' : ''}}" 
           wx:for="{{availableDoctors}}" 
           wx:key="id"
-          bindtap="selectDoctor"
+          bindtap="toggleDoctor"
           data-id="{{item.id}}">
           <view class="doctor-avatar">{{item.name.substring(0,1)}}</view>
           <view class="doctor-info">
@@ -149,7 +152,10 @@
             </view>
             <view class="doctor-title-tag">{{item.title}}</view>
           </view>
-          <view class="select-icon">›</view>
+          <view class="doctor-status">
+            <text class="status-text" wx:if="{{item.isAdded}}">已添加</text>
+            <text class="add-icon" wx:else>+</text>
+          </view>
         </view>
         
         <view class="empty-doctor" wx:if="{{availableDoctors.length === 0}}">
@@ -157,6 +163,23 @@
           <text class="empty-text">暂无可添加的医生</text>
         </view>
       </scroll-view>
+    </view>
+  </view>
+</view>
+
+<!-- 成员操作菜单 -->
+<view class="action-menu-mask" wx:if="{{showActionMenu}}" bindtap="hideMemberActions">
+  <view class="action-menu" catchtap="preventMenuClose">
+    <view class="action-menu-item" bindtap="toggleAdmin" data-id="{{currentMemberId}}">
+      <text class="action-icon">{{currentMemberIsAdmin ? '🔽' : '⬆️'}}</text>
+      <text class="action-text">{{currentMemberIsAdmin ? '取消管理员' : '设置为管理员'}}</text>
+    </view>
+    <view class="action-menu-item danger" bindtap="confirmRemoveMember" data-id="{{currentMemberId}}">
+      <text class="action-icon">🗑️</text>
+      <text class="action-text">移除成员</text>
+    </view>
+    <view class="action-menu-item cancel" bindtap="hideMemberActions">
+      <text class="action-text">取消</text>
     </view>
   </view>
 </view>

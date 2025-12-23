@@ -20,43 +20,48 @@ Page({
     doctorList: [
       {
         id: 'doc001',
-        name: '张伟医生',
+        name: '张伟',
+        teamDisplayName: '张医生团队',
         title: '主任医师',
         department: '骨科',
         hospital: '齐鲁医院',
-        teamName: '骨科康复A组'
+        teamName: '张医生团队'
       },
       {
         id: 'doc002',
-        name: '李娜医生',
+        name: '李娜',
+        teamDisplayName: '李医生团队',
         title: '副主任医师',
         department: '骨科',
         hospital: '齐鲁医院',
-        teamName: '骨科康复B组'
+        teamName: '李医生团队'
       },
       {
         id: 'doc003',
-        name: '王强医生',
+        name: '王强',
+        teamDisplayName: '王医生团队',
         title: '主治医师',
         department: '骨科',
         hospital: '齐鲁医院',
-        teamName: '骨科康复C组'
+        teamName: '王医生团队'
       },
       {
         id: 'doc004',
-        name: '刘芳医生',
+        name: '刘芳',
+        teamDisplayName: '刘医生团队',
         title: '主任医师',
         department: '康复科',
         hospital: '齐鲁医院',
-        teamName: '术后康复专组'
+        teamName: '刘医生团队'
       },
       {
         id: 'doc005',
-        name: '陈明医生',
+        name: '陈明',
+        teamDisplayName: '陈医生团队',
         title: '副主任医师',
         department: '运动医学科',
         hospital: '齐鲁医院',
-        teamName: '运动康复组'
+        teamName: '陈医生团队'
       }
     ]
   },
@@ -148,13 +153,13 @@ Page({
   },
 
   /**
-   * 选择医生
+   * 选择医生团队
    */
   selectDoctor(e) {
     const doctor = e.currentTarget.dataset.doctor;
     this.setData({
       'formData.doctorId': doctor.id,
-      'formData.teamName': `${doctor.name} - ${doctor.teamName}`,
+      'formData.teamName': doctor.teamName,
       showDoctorModal: false
     });
     wx.showToast({

@@ -10,8 +10,9 @@ Page({
     loading: false,
     formData: {
       title: '',
-      timeType: ''
+      timeTypes: [] // 改为数组，支持多选
     },
+    showTimeModal: false, // 控制时间选择弹窗显示
     // 选中的题目 id 列表（包含必选题目）
     selectedQuestions: [],
     assessmentScales: [],
@@ -40,11 +41,11 @@ Page({
         selected: true
       },
       {
-        id: 'basic_age',
+        id: 'basic_birth_date',
         group: 'basic',
         type: 'text',
         typeName: '文本',
-        title: '年龄',
+        title: '出生日期',
         required: true,
         alwaysRequiredInPlan: true,
         selected: true
@@ -65,6 +66,16 @@ Page({
         type: 'text',
         typeName: '文本',
         title: '体重',
+        required: true,
+        alwaysRequiredInPlan: true,
+        selected: true
+      },
+      {
+        id: 'basic_admission_number',
+        group: 'basic',
+        type: 'text',
+        typeName: '文本',
+        title: '住院号',
         required: true,
         alwaysRequiredInPlan: true,
         selected: true
@@ -141,11 +152,34 @@ Page({
       }
     ],
     timeOptions: [
-      { label: '术前评估', value: 'preoperative' },
-      { label: '出院前评估', value: 'preDischarge' },
-      { label: '术后1个月', value: 'oneMonthPostOp' },
-      { label: '术后3个月', value: 'threeMonthsPostOp' },
-      { label: '术后6个月', value: 'sixMonthsPostOp' }
+      { label: '日常自我评估', value: 'dailySelfAssessment', selected: false, isDaily: true },
+      { label: '术前评估', value: 'preoperative', selected: false },
+      { label: '术后评估', value: 'postoperative', selected: false },
+      { label: '出院前评估', value: 'preDischarge', selected: false },
+      { label: '手术后一月', value: 'oneMonth', selected: false },
+      { label: '手术后二月', value: 'twoMonths', selected: false },
+      { label: '手术后三月', value: 'threeMonths', selected: false },
+      { label: '手术后四月', value: 'fourMonths', selected: false },
+      { label: '手术后五月', value: 'fiveMonths', selected: false },
+      { label: '手术后六月', value: 'sixMonths', selected: false },
+      { label: '手术后七月', value: 'sevenMonths', selected: false },
+      { label: '手术后八月', value: 'eightMonths', selected: false },
+      { label: '手术后九月', value: 'nineMonths', selected: false },
+      { label: '手术后十月', value: 'tenMonths', selected: false },
+      { label: '手术后十一月', value: 'elevenMonths', selected: false },
+      { label: '手术后十二月', value: 'twelveMonths', selected: false },
+      { label: '手术后十三月', value: 'thirteenMonths', selected: false },
+      { label: '手术后十四月', value: 'fourteenMonths', selected: false },
+      { label: '手术后十五月', value: 'fifteenMonths', selected: false },
+      { label: '手术后十六月', value: 'sixteenMonths', selected: false },
+      { label: '手术后十七月', value: 'seventeenMonths', selected: false },
+      { label: '手术后十八月', value: 'eighteenMonths', selected: false },
+      { label: '手术后十九月', value: 'nineteenMonths', selected: false },
+      { label: '手术后二十月', value: 'twentyMonths', selected: false },
+      { label: '手术后二十一月', value: 'twentyOneMonths', selected: false },
+      { label: '手术后二十二月', value: 'twentyTwoMonths', selected: false },
+      { label: '手术后二十三月', value: 'twentyThreeMonths', selected: false },
+      { label: '手术后二十四月', value: 'twentyFourMonths', selected: false }
     ]
   },
 
@@ -167,7 +201,7 @@ Page({
     // 加载评估量表数据
     this.loadQuantificationData();
   },
-  
+
   /**
    * 加载评估量表数据
    */
@@ -187,7 +221,7 @@ Page({
       })
     }
   },
-  
+
   /**
    * 将评估量表数据转换为可用的问题结构
    */
@@ -206,7 +240,7 @@ Page({
       });
       return;
     }
-    
+
     try {
       // 转换评估量表数据
       const assessmentScales = quantificationData.map(scale => ({
@@ -230,7 +264,7 @@ Page({
           selected: false // 默认未选中
         }))
       }));
-      
+
       // 只设置评估量表，不再将量表问题添加到 availableQuestions
       this.setData({
         assessmentScales
@@ -242,7 +276,7 @@ Page({
       });
     }
   },
-  
+
   /**
    * 根据问题类型获取类型名称
    */
@@ -262,20 +296,20 @@ Page({
   checkDoctorStatus() {
     const app = getApp();
     const user = app.globalData.user;
-    
+
     if (!user) {
       // 未登录，返回首页
       wx.navigateTo({ url: '/pages/index/index' });
       return;
     }
-    
+
     // 开发环境下跳过云函数调用，直接返回
     const isDevMode = true;
     if (isDevMode) {
       console.log('开发模式：跳过医生身份验证');
       return;
     }
-    
+
     // 生产环境下调用云函数检查医生身份
     AV.Cloud.run('checkDoctorRole', { userId: user.id }).then(result => {
       if (!result.isDoctor) {
@@ -309,20 +343,20 @@ Page({
   toggleQuestion(e) {
     const questionId = e.currentTarget.dataset.id;
     const { assessmentScales, availableQuestions, selectedQuestions } = this.data;
-    
+
     // 先检查是否是基础问题（活动评估、AI评估等）
     const basicQuestionIndex = availableQuestions.findIndex(q => q.id === questionId);
-    
+
     if (basicQuestionIndex !== -1) {
       const question = availableQuestions[basicQuestionIndex];
-      
+
       // 一般状态等必选内容不允许取消
       if (question.alwaysRequiredInPlan) {
         return;
       }
-      
+
       const newSelectedState = !question.selected;
-      
+
       // 更新 selectedQuestions 数组
       let newSelectedQuestions = [...selectedQuestions];
       if (newSelectedState) {
@@ -332,18 +366,18 @@ Page({
       } else {
         newSelectedQuestions = newSelectedQuestions.filter(id => id !== questionId);
       }
-      
+
       this.setData({
         [`availableQuestions[${basicQuestionIndex}].selected`]: newSelectedState,
         selectedQuestions: newSelectedQuestions
       });
       return;
     }
-    
+
     // 查找问题在哪个量表中
     let scaleIndex = -1;
     let questionIndex = -1;
-    
+
     for (let i = 0; i < assessmentScales.length; i++) {
       const qIndex = assessmentScales[i].questions.findIndex(q => q.id === questionId);
       if (qIndex !== -1) {
@@ -352,15 +386,15 @@ Page({
         break;
       }
     }
-    
+
     if (scaleIndex === -1 || questionIndex === -1) return;
-    
+
     const question = assessmentScales[scaleIndex].questions[questionIndex];
     const newSelectedState = !question.selected;
-    
+
     // 更新问题的选中状态
     const questionKey = `assessmentScales[${scaleIndex}].questions[${questionIndex}].selected`;
-    
+
     // 更新 selectedQuestions 数组
     let newSelectedQuestions = [...selectedQuestions];
     if (newSelectedState) {
@@ -370,30 +404,30 @@ Page({
     } else {
       newSelectedQuestions = newSelectedQuestions.filter(id => id !== questionId);
     }
-    
+
     // 检查该量表是否全选
     const allSelected = assessmentScales[scaleIndex].questions.every((q, idx) => {
       if (idx === questionIndex) return newSelectedState;
       return q.selected;
     });
-    
+
     const allSelectedKey = `assessmentScales[${scaleIndex}].allSelected`;
-    
+
     this.setData({
       [questionKey]: newSelectedState,
       [allSelectedKey]: allSelected,
       selectedQuestions: newSelectedQuestions
     });
   },
-  
-  
+
+
   /**
-   * 切换量表展开/折叠状态
+   * 切换量表展开/折叠状态（只展开/折叠，不选择）
    */
   toggleScale(e) {
     const scaleId = e.currentTarget.dataset.id;
     const { assessmentScales } = this.data;
-    
+
     // 找到对应的量表，切换展开状态
     const scaleIndex = assessmentScales.findIndex(s => s.id === scaleId);
     if (scaleIndex !== -1) {
@@ -403,24 +437,24 @@ Page({
       });
     }
   },
-  
+
   /**
-   * 选择/取消选择整个量表的问题
+   * 选择/取消选择整个量表的问题（点击量表头部或复选框）
    */
   toggleScaleQuestions(e) {
     const scaleId = e.currentTarget.dataset.scaleId;
     const { assessmentScales, selectedQuestions } = this.data;
-    
+
     // 找到对应的量表
     const scaleIndex = assessmentScales.findIndex(s => s.id === scaleId);
     if (scaleIndex === -1) return;
-    
+
     const scale = assessmentScales[scaleIndex];
     const newSelectedState = !scale.allSelected;
-    
+
     // 获取该量表的所有问题ID
     const scaleQuestionIds = scale.questions.map(q => q.id);
-    
+
     // 更新 selectedQuestions 数组
     let newSelectedQuestions = [...selectedQuestions];
     if (newSelectedState) {
@@ -434,30 +468,89 @@ Page({
       // 取消全选：移除该量表的所有问题
       newSelectedQuestions = newSelectedQuestions.filter(id => !scaleQuestionIds.includes(id));
     }
-    
+
     // 更新所有问题的选中状态
     const updateData = {
       selectedQuestions: newSelectedQuestions,
       [`assessmentScales[${scaleIndex}].allSelected`]: newSelectedState
     };
-    
+
     // 更新每个问题的 selected 属性
     scale.questions.forEach((q, qIndex) => {
       updateData[`assessmentScales[${scaleIndex}].questions[${qIndex}].selected`] = newSelectedState;
     });
-    
+
     this.setData(updateData);
   },
-  
+
 
   /**
-   * 选择时间节点
+   * 打开时间选择弹窗
    */
-  selectTime(e) {
-    const timeValue = e.currentTarget.dataset.value;
-    this.setData({
-      'formData.timeType': timeValue
+  openTimeModal() {
+    // 根据formData.timeTypes同步timeOptions的selected状态
+    const timeOptions = JSON.parse(JSON.stringify(this.data.timeOptions));
+    const selectedTypes = this.data.formData.timeTypes || [];
+
+    timeOptions.forEach(option => {
+      option.selected = selectedTypes.indexOf(option.value) !== -1;
     });
+
+    // 确保日常自我评估在最前面
+    const dailyIndex = timeOptions.findIndex(opt => opt.value === 'dailySelfAssessment');
+    if (dailyIndex > 0) {
+      const dailyOption = timeOptions.splice(dailyIndex, 1)[0];
+      timeOptions.unshift(dailyOption);
+    }
+
+    this.setData({
+      showTimeModal: true,
+      timeOptions: timeOptions
+    });
+  },
+
+  /**
+   * 关闭时间选择弹窗
+   */
+  closeTimeModal() {
+    this.setData({
+      showTimeModal: false
+    });
+  },
+
+  /**
+   * 切换时间点选择状态
+   */
+  toggleTimeOption(e) {
+    const index = e.currentTarget.dataset.index;
+    const timeOptions = JSON.parse(JSON.stringify(this.data.timeOptions)); // 深拷贝数组
+
+    // 切换选中状态
+    timeOptions[index].selected = !timeOptions[index].selected;
+
+    // 更新选中的时间类型数组
+    const selectedTimeTypes = timeOptions
+      .filter(opt => opt.selected)
+      .map(opt => opt.value);
+
+    this.setData({
+      timeOptions: timeOptions,
+      'formData.timeTypes': selectedTimeTypes
+    });
+  },
+
+  /**
+   * 确认选择时间点
+   */
+  confirmTimeSelection() {
+    this.closeTimeModal();
+  },
+
+  /**
+   * 阻止事件冒泡
+   */
+  stopPropagation() {
+    // 空函数，用于阻止事件冒泡
   },
 
 
@@ -477,7 +570,7 @@ Page({
    */
   nextStep() {
     const { currentStep, formData } = this.data;
-    
+
     if (!this.canGoNext()) {
       // 根据当前步骤给出提示
       if (currentStep === 0) {
@@ -486,9 +579,9 @@ Page({
             title: '请输入随访计划名称',
             icon: 'none'
           });
-        } else if (!formData.timeType) {
+        } else if (!formData.timeTypes || formData.timeTypes.length === 0) {
           wx.showToast({
-            title: '请选择随访时间节点',
+            title: '请至少选择一个随访时间节点',
             icon: 'none'
           });
         }
@@ -500,7 +593,7 @@ Page({
       }
       return;
     }
-    
+
     this.setData({
       currentStep: this.data.currentStep + 1
     });
@@ -511,10 +604,10 @@ Page({
    */
   canGoNext() {
     const { currentStep, formData, availableQuestions, assessmentScales } = this.data;
-    
+
     if (currentStep === 0) {
       // 第一步：检查计划名称和是否选择了时间节点
-      return formData.title.trim() !== '' && formData.timeType !== '';
+      return formData.title.trim() !== '' && formData.timeTypes && formData.timeTypes.length > 0;
     } else if (currentStep === 1) {
       // 第二步：检查是否选择了随访内容
       // 计算选中的问题总数
@@ -522,10 +615,10 @@ Page({
       assessmentScales.forEach(scale => {
         selectedCount += scale.questions.filter(q => q.selected).length;
       });
-      
+
       return selectedCount > 0;
     }
-    
+
     return true;
   },
 
@@ -534,13 +627,13 @@ Page({
    */
   createPlan() {
     this.setData({ loading: true });
-    
+
     const { formData, availableQuestions, assessmentScales } = this.data;
     const app = getApp();
-    
+
     // 构建问题列表：从基础问题和量表问题中收集所有选中的问题
     const questions = [];
-    
+
     // 收集基础问题（一般状态、活动评估、AI评估）
     availableQuestions
       .filter(q => q.selected)
@@ -558,7 +651,7 @@ Page({
           required: q.required
         });
       });
-    
+
     // 收集量表问题
     assessmentScales.forEach(scale => {
       scale.questions
@@ -578,16 +671,16 @@ Page({
           });
         });
     });
-    
+
     // 准备创建数据
     const planData = {
       creator: app.globalData.user.id,
       title: formData.title,
-      timeType: formData.timeType,
+      timeTypes: formData.timeTypes,
       questions: questions,
       participantCount: 0
     };
-    
+
     // 开发环境下跳过云函数调用，直接返回成功
     const isDevMode = true;
     if (isDevMode) {
@@ -604,7 +697,7 @@ Page({
       });
       return;
     }
-    
+
     // 生产环境下调用云函数创建随访计划
     AV.Cloud.run('createFollowUpPlan', planData).then(result => {
       this.setData({ loading: false });
