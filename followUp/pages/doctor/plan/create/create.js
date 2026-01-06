@@ -154,7 +154,6 @@ Page({
     timeOptions: [
       { label: '日常自我评估', value: 'dailySelfAssessment', selected: false, isDaily: true },
       { label: '术前评估', value: 'preoperative', selected: false },
-      { label: '术后评估', value: 'postoperative', selected: false },
       { label: '出院前评估', value: 'preDischarge', selected: false },
       { label: '手术后一月', value: 'oneMonth', selected: false },
       { label: '手术后二月', value: 'twoMonths', selected: false },

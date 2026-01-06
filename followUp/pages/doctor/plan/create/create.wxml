@@ -119,93 +119,97 @@
 
     <!-- 步骤2：选择随访内容 -->
     <view class="step-panel" wx:if="{{currentStep === 1}}">
-      <!-- 一般状态（必选） -->
-      <view class="panel-header">
-        <text class="panel-title">一般状态<text class="required-star">*</text></text>
-        <text class="panel-subtitle">以下内容为必填项，将自动包含在随访计划中</text>
-      </view>
-      <view class="question-grid">
-        <block wx:for="{{availableQuestions}}" wx:key="id">
-          <view wx:if="{{item.group === 'basic'}}" class="question-grid-item selected required-item">
-            <view class="question-grid-title">
-              <text class="required-indicator">*</text>
-              <text>{{item.title}}</text>
+      <!-- 一般状况（必选） -->
+      <view class="section-block section-block-compact">
+        <view class="panel-header panel-header-compact">
+          <text class="panel-title">一般状况<text class="required-star">*</text></text>
+          <text class="panel-subtitle">以下内容为必填项，将自动包含在随访计划中</text>
+        </view>
+        <view class="question-grid">
+          <block wx:for="{{availableQuestions}}" wx:key="id">
+            <view wx:if="{{item.group === 'basic'}}" class="question-grid-item selected required-item">
+              <view class="question-grid-title">
+                <text>{{item.title}}</text>
+              </view>
             </view>
-            <view class="question-grid-badge">必填</view>
-          </view>
-        </block>
+          </block>
+        </view>
       </view>
 
       <!-- 活动评估（可选） -->
-      <view class="panel-header">
-        <text class="panel-title">活动评估（可选）</text>
-        <text class="panel-subtitle">可选择需要评估的活动项目</text>
-      </view>
-      <view class="question-list">
-        <block wx:for="{{availableQuestions}}" wx:key="id">
-          <view wx:if="{{item.group === 'activity'}}"
-                class="question-item {{item.selected ? 'selected' : ''}}"
-                bindtap="toggleQuestion"
-                data-id="{{item.id}}">
-            <view class="question-info">
-              <view class="question-title">{{item.title}}</view>
+      <view class="section-block">
+        <view class="panel-header">
+          <text class="panel-title">活动评估（可选）</text>
+          <text class="panel-subtitle">可选择需要评估的活动项目</text>
+        </view>
+        <view class="question-list">
+          <block wx:for="{{availableQuestions}}" wx:key="id">
+            <view wx:if="{{item.group === 'activity'}}"
+                  class="question-item {{item.selected ? 'selected' : ''}}"
+                  bindtap="toggleQuestion"
+                  data-id="{{item.id}}">
+              <view class="question-info">
+                <view class="question-title">{{item.title}}</view>
+              </view>
+              <view class="question-checkbox">
+                {{item.selected ? '✓' : ''}}
+              </view>
             </view>
-            <view class="question-checkbox">
-              {{item.selected ? '✓' : ''}}
-            </view>
-          </view>
-        </block>
+          </block>
+        </view>
       </view>
 
-      <!-- 功能评分 / 量表（可选） -->
-      <view class="panel-header">
-        <text class="panel-title">功能评分（可选）</text>
-        <text class="panel-subtitle">可选择需要的评估量表</text>
-      </view>
-      <view class="scale-list">
-        <block wx:for="{{assessmentScales}}" wx:key="id">
-          <view class="scale-item {{item.allSelected ? 'selected' : ''}}">
-            <view class="scale-header">
-              <view class="scale-checkbox" bindtap="toggleScaleQuestions" data-scale-id="{{item.id}}">
-                <text wx:if="{{item.allSelected}}">✓</text>
+      <!-- 功能评分（可选） -->
+      <view class="section-block">
+        <view class="panel-header">
+          <text class="panel-title">功能评分（可选）</text>
+          <text class="panel-subtitle">可选择需要的评估量表</text>
+        </view>
+        <view class="scale-list">
+          <block wx:for="{{assessmentScales}}" wx:key="id">
+            <view class="scale-item {{item.allSelected ? 'selected' : ''}}">
+              <view class="scale-header">
+                <view class="scale-checkbox" bindtap="toggleScaleQuestions" data-scale-id="{{item.id}}">
+                  <text wx:if="{{item.allSelected}}">✓</text>
+                </view>
+                <view class="scale-info" bindtap="toggleScaleQuestions" data-scale-id="{{item.id}}">
+                  <view class="scale-title">{{item.title}}</view>
+                  <view class="scale-description">{{item.description}}</view>
+                </view>
+                <view class="scale-arrow" catchtap="toggleScale" data-id="{{item.id}}">
+                  {{item.expanded ? '▼' : '▶'}}
+                </view>
               </view>
-              <view class="scale-info" bindtap="toggleScaleQuestions" data-scale-id="{{item.id}}">
-                <view class="scale-title">{{item.title}}</view>
-                <view class="scale-description">{{item.description}}</view>
-              </view>
-              <view class="scale-arrow" catchtap="toggleScale" data-id="{{item.id}}">
-                {{item.expanded ? '▼' : '▶'}}
-              </view>
-            </view>
-            
-            <!-- 量表问题列表（只读展示） -->
-            <view class="scale-questions" wx:if="{{item.expanded}}">
-              <view class="scale-questions-header">
-                <text class="questions-count">包含 {{item.questions.length}} 个问题</text>
-              </view>
-              <block wx:for="{{item.questions}}" wx:key="id" wx:for-item="question" wx:for-index="qIndex">
-                <view class="question-item-readonly">
-                  <view class="question-info">
-                    <view class="question-header-row">
-                      <view class="question-type">{{question.typeName}}</view>
-                      <view class="question-number">第{{qIndex + 1}}题</view>
-                    </view>
-                    <view class="question-title">
-                      <text>{{question.text}}</text>
-                    </view>
-                    <!-- 根据问题类型显示不同的样式 -->
-                    <view class="question-preview" wx:if="{{question.type === 'slider'}}">
-                      <text>范围：{{question.min}}-{{question.max}}，步长：{{question.step}}</text>
-                    </view>
-                    <view class="question-preview" wx:if="{{question.type === 'radio' || question.type === 'checkbox'}}">
-                      <text>{{question.options.length}}个选项</text>
+              
+              <!-- 量表问题列表（只读展示） -->
+              <view class="scale-questions" wx:if="{{item.expanded}}">
+                <view class="scale-questions-header">
+                  <text class="questions-count">包含 {{item.questions.length}} 个问题</text>
+                </view>
+                <block wx:for="{{item.questions}}" wx:key="id" wx:for-item="question" wx:for-index="qIndex">
+                  <view class="question-item-readonly">
+                    <view class="question-info">
+                      <view class="question-header-row">
+                        <view class="question-type">{{question.typeName}}</view>
+                        <view class="question-number">第{{qIndex + 1}}题</view>
+                      </view>
+                      <view class="question-title">
+                        <text>{{question.text}}</text>
+                      </view>
+                      <!-- 根据问题类型显示不同的样式 -->
+                      <view class="question-preview" wx:if="{{question.type === 'slider'}}">
+                        <text>范围：{{question.min}}-{{question.max}}，步长：{{question.step}}</text>
+                      </view>
+                      <view class="question-preview" wx:if="{{question.type === 'radio' || question.type === 'checkbox'}}">
+                        <text>{{question.options.length}}个选项</text>
+                      </view>
                     </view>
                   </view>
-                </view>
-              </block>
+                </block>
+              </view>
             </view>
-          </view>
-        </block>
+          </block>
+        </view>
       </view>
 
       <!-- AI 辅助智能评估（可选） -->

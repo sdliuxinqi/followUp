@@ -13,6 +13,7 @@ Page({
     navBarHeight: 0,
     menuButton: null,
     followRecords: [],
+    dailyAssessmentRecords: [], // 日常自我评估（单独显示）
     pendingRecords: [],
     otherRecords: [],
     loading: true
@@ -159,12 +160,17 @@ Page({
       // 按照规则排序：日常随访 > 未完成 > 已完成/已失效
       const sortedRecords = this.sortFollowRecords(mockRecords);
       
-      // 分组：待完成和其他（已完成/已失效）
-      const pendingRecords = sortedRecords.filter(item => item.status === 'pending');
-      const otherRecords = sortedRecords.filter(item => item.status !== 'pending');
+      // 分组：
+      // 1. 日常自我评估（单独显示，不区分状态）
+      const dailyAssessmentRecords = sortedRecords.filter(item => item.timeType === 'dailySelfAssessment');
+      // 2. 待完成（排除日常自我评估）
+      const pendingRecords = sortedRecords.filter(item => item.status === 'pending' && item.timeType !== 'dailySelfAssessment');
+      // 3. 其他（已完成/已失效，排除日常自我评估）
+      const otherRecords = sortedRecords.filter(item => item.status !== 'pending' && item.timeType !== 'dailySelfAssessment');
 
       this.setData({
         followRecords: sortedRecords,
+        dailyAssessmentRecords: dailyAssessmentRecords,
         pendingRecords: pendingRecords,
         otherRecords: otherRecords,
         loading: false
@@ -194,10 +200,16 @@ Page({
     //     status: record.get('status') || 'pending'
     //   }));
     //   const sortedRecords = this.sortFollowRecords(formattedRecords);
-    //   const pendingRecords = sortedRecords.filter(item => item.status === 'pending');
-    //   const otherRecords = sortedRecords.filter(item => item.status !== 'pending');
+    //   // 分组：
+    //   // 1. 日常自我评估（单独显示，不区分状态）
+    //   const dailyAssessmentRecords = sortedRecords.filter(item => item.timeType === 'dailySelfAssessment');
+    //   // 2. 待完成（排除日常自我评估）
+    //   const pendingRecords = sortedRecords.filter(item => item.status === 'pending' && item.timeType !== 'dailySelfAssessment');
+    //   // 3. 其他（已完成/已失效，排除日常自我评估）
+    //   const otherRecords = sortedRecords.filter(item => item.status !== 'pending' && item.timeType !== 'dailySelfAssessment');
     //   this.setData({
     //     followRecords: sortedRecords,
+    //     dailyAssessmentRecords: dailyAssessmentRecords,
     //     pendingRecords: pendingRecords,
     //     otherRecords: otherRecords,
     //     loading: false

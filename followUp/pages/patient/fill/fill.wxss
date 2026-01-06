@@ -493,3 +493,133 @@ checkbox {
   background: linear-gradient(135deg, #95DE64 0%, #73D13D 100%);
 }
 
+/* 视频拍摄提示弹窗 */
+.video-tip-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.video-tip-container {
+  width: 600rpx;
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  overflow: hidden;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50rpx);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.video-tip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx;
+  border-bottom: 2rpx solid #F0F0F0;
+}
+
+.video-tip-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333333;
+}
+
+.video-tip-close {
+  font-size: 48rpx;
+  color: #999999;
+  line-height: 1;
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-tip-content {
+  padding: 48rpx 32rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.video-tip-text {
+  font-size: 28rpx;
+  color: #666666;
+  line-height: 1.8;
+  word-break: break-all;
+  text-align: center;
+}
+
+.video-tip-footer {
+  display: flex;
+  gap: 16rpx;
+  padding: 24rpx 32rpx 32rpx;
+  border-top: 2rpx solid #F0F0F0;
+}
+
+.video-tip-cancel-btn,
+.video-tip-confirm-btn {
+  flex: 1;
+  height: 80rpx;
+  line-height: 80rpx;
+  font-size: 28rpx;
+  border-radius: 12rpx;
+  border: none;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-tip-cancel-btn {
+  background: #F5F5F5;
+  color: #666666;
+}
+
+.video-tip-confirm-btn {
+  background: linear-gradient(135deg, #7BCA9A 0%, #5BA87D 100%);
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.video-tip-cancel-btn:active {
+  background: #E8E8E8;
+}
+
+.video-tip-confirm-btn:active {
+  opacity: 0.9;
+}
+
+.video-tip-cancel-btn::after,
+.video-tip-confirm-btn::after {
+  border: none;
+}
+

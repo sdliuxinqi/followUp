@@ -184,6 +184,10 @@ page {
   background: linear-gradient(180deg, #52c41a 0%, #73d13d 100%);
 }
 
+.group-header.daily-group .group-title::before {
+  background: linear-gradient(180deg, #7BCA9A 0%, #5BA87D 100%);
+}
+
 .group-count {
   font-size: 22rpx;
   color: #999999;

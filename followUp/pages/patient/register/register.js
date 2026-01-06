@@ -8,7 +8,7 @@ Page({
   data: {
     formData: {
       name: '',
-      age: '',
+      birthDate: '',
       gender: '男',
       admissionNumber: '',
       phone: '',
@@ -76,6 +76,15 @@ Page({
       // 未登录，可以选择自动登录或跳转到登录页
       console.log('用户未登录');
     }
+    
+    // 设置当前日期作为最大可选日期
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    this.setData({
+      currentDate: `${year}-${month}-${day}`
+    });
   },
 
   /**
@@ -99,6 +108,16 @@ Page({
     const gender = e.currentTarget.dataset.gender;
     this.setData({
       'formData.gender': gender
+    });
+  },
+
+  /**
+   * 选择日期
+   */
+  onDateChange(e) {
+    const date = e.detail.value;
+    this.setData({
+      'formData.birthDate': date
     });
   },
 
@@ -204,8 +223,8 @@ Page({
       wx.showToast({ title: '请输入姓名', icon: 'none' });
       return;
     }
-    if (!formData.age || formData.age <= 0) {
-      wx.showToast({ title: '请输入有效年龄', icon: 'none' });
+    if (!this.data.formData.birthDate) {
+      wx.showToast({ title: '请选择出生日期', icon: 'none' });
       return;
     }
     if (!this.data.formData.gender) {
@@ -227,7 +246,7 @@ Page({
     const PatientProfile = new AV.Object('PatientProfile');
     PatientProfile.set('user', AV.Object.createWithoutData('_User', getApp().globalData.user.id));
     PatientProfile.set('name', formData.name);
-    PatientProfile.set('age', parseInt(formData.age));
+    PatientProfile.set('birthDate', this.data.formData.birthDate);
     PatientProfile.set('gender', this.data.formData.gender);
     PatientProfile.set('admissionNumber', formData.admissionNumber);
     PatientProfile.set('phone', this.data.formData.phone);

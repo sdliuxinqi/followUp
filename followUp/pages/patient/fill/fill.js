@@ -26,7 +26,10 @@ Page({
       admissionNumber: '',
       admissionDate: '',
       contact: ''
-    }
+    },
+    showVideoTip: false, // 显示视频提示弹窗
+    videoTipContent: '', // 视频提示内容
+    pendingVideoQuestionId: '' // 待拍摄的视频问题ID
   },
 
   /**
@@ -225,9 +228,15 @@ Page({
           },
           // 活动评估
           {
-            id: 'q_video',
+            id: 'activity_knee_video',
             type: 'video',
             title: '膝关节屈伸视频',
+            required: false
+          },
+          {
+            id: 'activity_walk_video',
+            type: 'video',
+            title: '行走视频',
             required: false
           }
         ]
@@ -526,6 +535,53 @@ Page({
   // 视频上传
   onVideoUpload(e) {
     const questionId = e.currentTarget.dataset.questionId;
+    // 查找问题信息，判断是哪种视频
+    const question = this.data.questions.find(q => q.id === questionId);
+    const questionTitle = question ? question.title : '';
+    
+    // 判断视频类型并显示提示
+    let tipContent = '';
+    if (questionTitle.includes('膝关节屈伸') || questionId.includes('knee')) {
+      tipContent = '患者平卧屈伸膝关节，相机横屏侧面拍摄';
+    } else if (questionTitle.includes('行走') || questionId.includes('walk')) {
+      tipContent = '患者挽起裤腿至膝盖以上或穿短裤行走，正面观拍摄';
+    }
+    
+    // 如果有提示内容，先显示提示弹窗
+    if (tipContent) {
+      this.setData({
+        showVideoTip: true,
+        videoTipContent: tipContent,
+        pendingVideoQuestionId: questionId
+      });
+    } else {
+      // 没有提示，直接选择视频
+      this.chooseVideo(questionId);
+    }
+  },
+
+  // 确认提示后选择视频
+  confirmVideoTip() {
+    this.setData({
+      showVideoTip: false
+    });
+    // 延迟一下再选择视频，让弹窗关闭动画完成
+    setTimeout(() => {
+      this.chooseVideo(this.data.pendingVideoQuestionId);
+    }, 300);
+  },
+
+  // 取消提示
+  cancelVideoTip() {
+    this.setData({
+      showVideoTip: false,
+      videoTipContent: '',
+      pendingVideoQuestionId: ''
+    });
+  },
+
+  // 选择视频
+  chooseVideo(questionId) {
     wx.chooseVideo({
       sourceType: ['album', 'camera'],
       maxDuration: 60,
@@ -559,6 +615,11 @@ Page({
     const answers = this.data.answers;
     answers[questionId] = null;
     this.setData({ answers });
+  },
+
+  // 阻止事件冒泡
+  stopPropagation() {
+    // 空函数，用于阻止事件冒泡
   },
 
   // 提交随访记录

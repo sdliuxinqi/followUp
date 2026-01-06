@@ -12,7 +12,9 @@ Page({
       department: '',
       workCardImage: ''
     },
-    loading: false
+    loading: false,
+    departmentList: ['关节外科', '脊柱外科', '手足外科', '骨肿瘤科', '创伤外科'],
+    showDepartmentPicker: false
   },
 
   /**
@@ -71,6 +73,35 @@ Page({
   deleteWorkCardImage() {
     this.setData({
       'formData.workCardImage': ''
+    });
+  },
+
+  /**
+   * 显示科室选择弹窗
+   */
+  showDepartmentPicker() {
+    this.setData({
+      showDepartmentPicker: true
+    });
+  },
+
+  /**
+   * 隐藏科室选择弹窗
+   */
+  hideDepartmentPicker() {
+    this.setData({
+      showDepartmentPicker: false
+    });
+  },
+
+  /**
+   * 选择科室
+   */
+  selectDepartment(e) {
+    const department = e.currentTarget.dataset.department;
+    this.setData({
+      'formData.department': department,
+      showDepartmentPicker: false
     });
   },
 

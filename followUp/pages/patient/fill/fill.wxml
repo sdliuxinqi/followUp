@@ -158,4 +158,21 @@
       提交随访
     </button>
   </view>
+
+  <!-- 视频拍摄提示弹窗 -->
+  <view class="video-tip-mask" wx:if="{{showVideoTip}}" bindtap="cancelVideoTip">
+    <view class="video-tip-container" catchtap="stopPropagation">
+      <view class="video-tip-header">
+        <text class="video-tip-title">拍摄提示</text>
+        <text class="video-tip-close" bindtap="cancelVideoTip">×</text>
+      </view>
+      <view class="video-tip-content">
+        <text class="video-tip-text">{{videoTipContent}}</text>
+      </view>
+      <view class="video-tip-footer">
+        <button class="video-tip-cancel-btn" bindtap="cancelVideoTip">取消</button>
+        <button class="video-tip-confirm-btn" bindtap="confirmVideoTip">开始拍摄</button>
+      </view>
+    </view>
+  </view>
 </view>

@@ -43,7 +43,12 @@
           <text class="label">科室</text>
           <text class="required">*</text>
         </view>
-        <input class="input" name="department" placeholder="例如：骨科" value="{{formData.department}}" />
+        <view class="department-selector" bindtap="showDepartmentPicker">
+          <text class="department-text" wx:if="{{formData.department}}">{{formData.department}}</text>
+          <text class="department-placeholder" wx:else>请选择科室</text>
+          <text class="arrow-icon">›</text>
+        </view>
+        <input name="department" value="{{formData.department}}" style="display: none;" />
       </view>
 
       <view class="form-item">
@@ -76,5 +81,22 @@
   <view class="footer-note">
     <text class="note-icon">🔒</text>
     <text class="note-text">您的信息将被严格保密，仅用于身份认证</text>
+  </view>
+
+  <!-- 科室选择弹窗 -->
+  <view class="picker-mask" wx:if="{{showDepartmentPicker}}" bindtap="hideDepartmentPicker">
+    <view class="picker-container" catchtap="stopPropagation">
+      <view class="picker-header">
+        <text class="picker-title">选择科室</text>
+        <text class="picker-close" bindtap="hideDepartmentPicker">×</text>
+      </view>
+      <view class="picker-content">
+        <view class="picker-item" wx:for="{{departmentList}}" wx:key="index" 
+              data-department="{{item}}" bindtap="selectDepartment">
+          <text class="picker-item-text">{{item}}</text>
+          <text class="picker-item-check" wx:if="{{formData.department === item}}">✓</text>
+        </view>
+      </view>
+    </view>
   </view>
 </view>

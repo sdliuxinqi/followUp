@@ -14,14 +14,26 @@
         <input class="input" name="name" placeholder="请输入您的姓名" value="{{formData.name}}" />
       </view>
 
-      <!-- 年龄和性别 -->
+      <!-- 出生日期和性别 -->
       <view class="form-row">
         <view class="form-item half-item">
           <view class="label-row">
-            <text class="label">年龄</text>
+            <text class="label">出生日期</text>
             <text class="required">*</text>
           </view>
-          <input class="input" name="age" type="number" placeholder="请输入年龄" value="{{formData.age}}" />
+          <picker 
+            mode="date" 
+            value="{{formData.birthDate}}" 
+            start="1900-01-01"
+            end="{{currentDate}}"
+            bindchange="onDateChange"
+          >
+            <view class="date-selector">
+              <text class="date-text {{formData.birthDate ? '' : 'placeholder'}}">
+                {{formData.birthDate || '请选择出生日期'}}
+              </text>
+            </view>
+          </picker>
         </view>
 
         <view class="form-item half-item">
