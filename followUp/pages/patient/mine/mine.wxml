@@ -11,20 +11,59 @@
     </view>
   </view>
 
-  <!-- 功能菜单区域 -->
+  <!-- 已绑定的随访计划列表 -->
   <view class="menu-section">
-    <view class="section-title">我的服务</view>
+    <view class="section-title">已绑定的随访计划</view>
     
-    <view class="menu-card">
-      <view class="menu-item" bindtap="viewHistory">
-        <view class="menu-icon">📋</view>
-        <view class="menu-content">
-          <view class="menu-title">随访记录</view>
-          <view class="menu-desc">查看我的随访历史</view>
+    <!-- 加载中 -->
+    <block wx:if="{{loading}}">
+      <view class="menu-card">
+        <view class="loading-item">
+          <text class="loading-text">加载中...</text>
         </view>
-        <view class="menu-arrow">›</view>
       </view>
-    </view>
+    </block>
+    
+    <!-- 计划列表 -->
+    <block wx:elif="{{boundPlans.length > 0}}">
+      <view class="menu-card">
+        <view class="menu-item" wx:for="{{boundPlans}}" wx:key="planId" bindtap="viewPlanDetail" data-plan-id="{{item.planId}}" data-commitment-id="{{item.commitmentId}}">
+          <view class="menu-icon">📋</view>
+          <view class="menu-content">
+            <view class="menu-title-row">
+              <view class="menu-title">{{item.planTitle}}</view>
+              <view class="badge-group">
+                <view class="current-badge" wx:if="{{item.isCurrent}}">
+                  <text class="badge-text">当前</text>
+                </view>
+                <view class="info-badge" wx:if="{{!item.hasSupplementInfo}}">
+                  <text class="badge-text">待补充</text>
+                </view>
+              </view>
+            </view>
+            <view class="menu-desc">👨‍⚕️ {{item.doctorName || '医生团队'}}</view>
+            <view class="menu-hint" wx:if="{{!item.hasSupplementInfo}}">点击补充住院号和治疗组信息</view>
+          </view>
+          <view class="menu-actions">
+            <view class="action-btn" catchtap="setCurrentPlan" data-commitment-id="{{item.commitmentId}}" data-plan-title="{{item.planTitle}}" data-is-current="{{item.isCurrent}}">
+              <text class="action-text">{{item.isCurrent ? '取消当前' : '设为当前'}}</text>
+            </view>
+            <view class="menu-arrow">›</view>
+          </view>
+        </view>
+      </view>
+    </block>
+    
+    <!-- 空状态 -->
+    <block wx:else>
+      <view class="menu-card">
+        <view class="empty-plans">
+          <text class="empty-icon">📭</text>
+          <text class="empty-text">暂无当前随访计划</text>
+          <text class="empty-hint">请先绑定随访计划，然后设置为当前计划</text>
+        </view>
+      </view>
+    </block>
   </view>
 
   <!-- 设置区域 -->
@@ -32,6 +71,15 @@
     <view class="section-title">设置与帮助</view>
     
     <view class="menu-card">
+      <view class="menu-item" bindtap="editProfile">
+        <view class="menu-icon">👤</view>
+        <view class="menu-content">
+          <view class="menu-title">个人信息</view>
+          <view class="menu-desc">编辑姓名、性别、出生日期、身高</view>
+        </view>
+        <view class="menu-arrow">›</view>
+      </view>
+
       <view class="menu-item" bindtap="openAgreement">
         <view class="menu-icon">📄</view>
         <view class="menu-content">

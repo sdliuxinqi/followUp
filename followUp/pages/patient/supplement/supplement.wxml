@@ -1,0 +1,138 @@
+<!--pages/patient/supplement/supplement.wxml-->
+<view class="page-container">
+  <!-- 表单卡片 -->
+  <view class="form-card">
+    <view class="form-title">补充患者信息</view>
+    <view class="form-hint">请补充以下信息，以便更好地为您提供随访服务</view>
+    
+    <form bindsubmit="submitSupplement">
+      <!-- 住院号 -->
+      <view class="form-item">
+        <view class="label-row">
+          <text class="label">住院号</text>
+          <text class="required">*</text>
+        </view>
+        <input class="input" name="admissionNumber" placeholder="请输入住院号" value="{{formData.admissionNumber}}" />
+      </view>
+
+      <!-- 治疗组 -->
+      <view class="form-item">
+        <view class="label-row">
+          <text class="label">治疗组</text>
+          <text class="required">*</text>
+        </view>
+        <view class="team-selector" bindtap="showDoctorList">
+          <text class="team-value {{formData.teamName ? '' : 'placeholder'}}">
+            {{formData.teamName || '请选择治疗组'}}
+          </text>
+          <text class="selector-arrow">›</text>
+        </view>
+        <view class="team-hint">点击选择您的治疗组</view>
+      </view>
+
+      <!-- 住院时间 -->
+      <view class="form-item">
+        <view class="label-row">
+          <text class="label">住院时间</text>
+        </view>
+        <picker 
+          mode="date" 
+          value="{{formData.admissionDate}}" 
+          start="1900-01-01"
+          end="{{currentDate}}"
+          bindchange="onDateChange"
+          data-field="admissionDate"
+        >
+          <view class="date-selector">
+            <text class="date-text {{formData.admissionDate ? '' : 'placeholder'}}">
+              {{formData.admissionDate || '请选择住院时间'}}
+            </text>
+          </view>
+        </picker>
+      </view>
+
+      <!-- 手术时间 -->
+      <view class="form-item">
+        <view class="label-row">
+          <text class="label">手术时间</text>
+        </view>
+        <picker 
+          mode="date" 
+          value="{{formData.surgeryDate}}" 
+          start="1900-01-01"
+          end="{{currentDate}}"
+          bindchange="onDateChange"
+          data-field="surgeryDate"
+        >
+          <view class="date-selector">
+            <text class="date-text {{formData.surgeryDate ? '' : 'placeholder'}}">
+              {{formData.surgeryDate || '请选择手术时间'}}
+            </text>
+          </view>
+        </picker>
+      </view>
+
+      <!-- 出院时间 -->
+      <view class="form-item">
+        <view class="label-row">
+          <text class="label">出院时间</text>
+        </view>
+        <picker 
+          mode="date" 
+          value="{{formData.dischargeDate}}" 
+          start="1900-01-01"
+          end="{{currentDate}}"
+          bindchange="onDateChange"
+          data-field="dischargeDate"
+        >
+          <view class="date-selector">
+            <text class="date-text {{formData.dischargeDate ? '' : 'placeholder'}}">
+              {{formData.dischargeDate || '请选择出院时间'}}
+            </text>
+          </view>
+        </picker>
+      </view>
+
+      <!-- 提交按钮 -->
+      <button class="submit-btn" form-type="submit" loading="{{loading}}">
+        {{loading ? '提交中...' : '提交'}}
+      </button>
+    </form>
+  </view>
+
+  <!-- 医生列表弹窗 -->
+  <view class="modal-mask" wx:if="{{showDoctorModal}}" bindtap="hideDoctorList">
+    <view class="modal-container" catchtap="stopPropagation">
+      <view class="modal-header">
+        <text class="modal-title">选择治疗组</text>
+        <text class="modal-close" bindtap="hideDoctorList">✕</text>
+      </view>
+      <view class="modal-body">
+        <scroll-view class="doctor-list" scroll-y>
+          <view 
+            class="doctor-item {{formData.doctorId === doctor.id ? 'selected' : ''}}" 
+            wx:for="{{doctorList}}" 
+            wx:key="id"
+            bindtap="selectDoctor"
+            data-doctor="{{item}}">
+            <view class="doctor-info">
+              <view class="doctor-avatar">
+                <text class="avatar-icon">👨‍⚕️</text>
+              </view>
+              <view class="doctor-details">
+                <view class="doctor-name">{{item.teamDisplayName}}</view>
+                <view class="doctor-meta">
+                  <text class="doctor-title">{{item.title}}</text>
+                  <text class="doctor-dept">{{item.department}}</text>
+                </view>
+                <view class="doctor-hospital">{{item.hospital}}</view>
+              </view>
+            </view>
+            <view class="check-icon" wx:if="{{formData.doctorId === item.id}}">✓</view>
+          </view>
+        </scroll-view>
+      </view>
+    </view>
+  </view>
+</view>
+

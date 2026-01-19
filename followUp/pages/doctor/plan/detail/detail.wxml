@@ -17,28 +17,6 @@
     </view>
   </view>
 
-  <!-- 基本信息 -->
-  <view class="section-header">
-    <view class="section-title">基本信息</view>
-  </view>
-
-  <view class="info-card">
-    <view class="info-item">
-      <view class="info-label">计划名称</view>
-      <view class="info-value">{{plan.title}}</view>
-    </view>
-
-    <view class="info-item">
-      <view class="info-label">创建时间</view>
-      <view class="info-value">{{plan.createdAt}}</view>
-    </view>
-
-    <view class="info-item">
-      <view class="info-label">随访时间</view>
-      <view class="info-value">{{plan.timeLabel}}</view>
-    </view>
-  </view>
-
   <!-- 随访二维码 -->
   <view class="section-header">
     <view class="section-title">患者扫码</view>

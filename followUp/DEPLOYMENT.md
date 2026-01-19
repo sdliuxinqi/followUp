@@ -67,7 +67,7 @@ AV.init({
   appId: 'qFY2EfADtBfkzbT7SvDql1Ba-gzGzoHsz',
   appKey: 'NfPKhZiV31u5F0FjffGuKyT6',
   masterKey: 'D37vVcFQmoD0bVI6UY9e9n3S',
-  serverURL: 'https://api.tka-followup.top'
+  serverURL: 'https://server.tka-followup.top'
 });
 
 // 加载所有云函数

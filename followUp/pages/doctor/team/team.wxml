@@ -15,7 +15,7 @@
     <view class="member-card leader-card">
       <view class="member-header">
         <view class="avatar-wrapper">
-          <view class="avatar leader-avatar">{{leader.name.substring(0,1)}}</view>
+          <view class="avatar leader-avatar">{{leader.name ? leader.name.substring(0,1) : '?'}}</view>
           <view class="avatar-badge">👑</view>
         </view>
         
@@ -73,7 +73,7 @@
       
       <view class="member-header">
         <view class="avatar-wrapper">
-          <view class="avatar">{{item.name.substring(0,1)}}</view>
+          <view class="avatar">{{item.name ? item.name.substring(0,1) : '?'}}</view>
         </view>
         
         <view class="member-info">
@@ -137,12 +137,12 @@
     
     <view class="modal-body">
       <scroll-view class="doctor-list" scroll-y="{{true}}">
-        <view class="doctor-item {{item.isAdded ? 'added' : ''}}" 
+        <view class="doctor-item {{item.isAdded ? 'added disabled' : ''}}" 
           wx:for="{{availableDoctors}}" 
           wx:key="id"
           bindtap="toggleDoctor"
           data-id="{{item.id}}">
-          <view class="doctor-avatar">{{item.name.substring(0,1)}}</view>
+          <view class="doctor-avatar">{{item.name ? item.name.substring(0,1) : '?'}}</view>
           <view class="doctor-info">
             <view class="doctor-name">{{item.name}}</view>
             <view class="doctor-detail">

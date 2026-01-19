@@ -16,7 +16,9 @@
     "pages/patient/mine/mine",
     "pages/patient/register/register",
     "pages/patient/record/detail/detail",
-    "pages/patient/fill/fill"
+    "pages/patient/fill/fill",
+    "pages/patient/supplement/supplement",
+    "pages/patient/profile/profile"
   ],
 
   "window": {

@@ -49,7 +49,10 @@
               <view class="follow-meta">
                 <text class="doctor-name">👨‍⚕️ {{item.doctorName}}</text>
               </view>
-              <view class="follow-time">🕐 {{item.fillTime}}</view>
+              <view class="follow-time">
+                <text wx:if="{{item.fillTime}}">🕐 最近填写：{{item.fillTime}}</text>
+                <text wx:else>⏰ 待填写</text>
+              </view>
             </view>
             <view class="arrow-icon">›</view>
           </view>
@@ -78,7 +81,10 @@
             <view class="follow-meta">
               <text class="doctor-name">👨‍⚕️ {{item.doctorName}}</text>
             </view>
-            <view class="follow-time">🕐 {{item.fillTime}}</view>
+            <view class="follow-time">
+              <text wx:if="{{item.status === 'completed'}}">🕐 {{item.fillTime}}</text>
+              <text wx:else>⏰ 推荐日期：{{item.fillTime}}</text>
+            </view>
           </view>
           <view class="arrow-icon">›</view>
         </view>
@@ -92,7 +98,7 @@
         <text class="group-count">{{otherRecords.length}}条</text>
       </view>
       <view class="follow-list">
-        <view class="follow-item {{item.status === 'pending' ? 'status-pending' : item.status === 'completed' ? 'status-completed' : 'status-expired'}}" wx:for="{{otherRecords}}" wx:key="id" bindtap="viewFollowDetail" data-id="{{item.id}}">
+        <view class="follow-item {{item.status === 'pending' ? 'status-pending' : item.status === 'completed' ? 'status-completed' : 'status-expired'}}" wx:for="{{otherRecords}}" wx:key="id" bindtap="viewFollowDetail" data-id="{{item.id}}" data-status="{{item.status}}" data-plan-id="{{item.planId || item.id}}" data-time-type="{{item.timeType}}">
           <view class="follow-info">
             <view class="follow-title-row">
               <view class="follow-title-wrapper">
@@ -107,7 +113,11 @@
             <view class="follow-meta">
               <text class="doctor-name">👨‍⚕️ {{item.doctorName}}</text>
             </view>
-            <view class="follow-time">🕐 {{item.fillTime}}</view>
+            <view class="follow-time">
+              <text wx:if="{{item.status === 'completed'}}">🕐 {{item.fillTime}}</text>
+              <text wx:elif="{{item.status === 'expired'}}">⏰ 推荐日期：{{item.fillTime}}</text>
+              <text wx:else>⏰ 推荐日期：{{item.fillTime}}</text>
+            </view>
           </view>
           <view class="arrow-icon">›</view>
         </view>

@@ -306,7 +306,8 @@ Page({
         doctorName: '医生', // 这里需要根据实际数据结构获取医生名称
         fillTime: util.formatTime(record.createdAt),
         answers: record.get('answers') || [],
-        aiReport: record.get('aiReportContent')
+        // 从 extraInfo 字段读取 AI 报告（符合 schema 设计）
+        aiReport: record.get('extraInfo') || { summary: '', details: [], suggestions: [] }
       };
 
       // 处理数据，按量表分组

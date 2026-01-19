@@ -39,63 +39,172 @@ Page({
   loadPlanDetail(planId) {
     this.setData({ loading: true });
     
-    // 模拟加载随访计划详情
-    setTimeout(() => {
-      // 模拟数据
-      const mockPlan = {
-        title: '术后康复随访计划',
-        createdAt: formatTime(new Date(Date.now() - 86400000)),
-        timeLabel: '术后1个月',
-        participantCount: 15
-      };
-      
-      this.setData({
-        plan: mockPlan,
-        loading: false
+    const app = getApp();
+    const sessionToken = wx.getStorageSync('sessionToken') || app.globalData.sessionToken;
+    const API_BASE = app.globalData.apiBase || 'https://server.tka-followup.top';
+    
+    if (!sessionToken) {
+      wx.showToast({
+        title: '请先登录',
+        icon: 'none',
+        duration: 2000
       });
-    }, 1000);
+      setTimeout(() => {
+        wx.navigateBack();
+      }, 2000);
+      return;
+    }
+    
+    wx.request({
+      url: `${API_BASE}/v1/doctor/plans/${planId}`,
+      method: 'GET',
+      header: {
+        'Content-Type': 'application/json',
+        'X-LC-Session': sessionToken
+      },
+      success: (res) => {
+        this.setData({ loading: false });
+        
+        if (res.statusCode === 200 && res.data && res.data.success) {
+          const planData = res.data.data || {};
+          
+          // 格式化时间节点显示
+          let timeLabel = '';
+          if (planData.timeTypes && planData.timeTypes.length > 0) {
+            const timeTypeLabels = {
+              'preoperative': '术前',
+              'oneWeek': '术后1周',
+              'oneMonth': '术后1个月',
+              'threeMonths': '术后3个月',
+              'sixMonths': '术后6个月',
+              'oneYear': '术后1年'
+            };
+            timeLabel = planData.timeTypes.map(t => timeTypeLabels[t] || t).join('、');
+          }
+          
+          this.setData({
+            plan: {
+              title: planData.title || '未命名计划',
+              createdAt: planData.createdAt ? formatTime(new Date(planData.createdAt)) : '',
+              timeLabel: timeLabel || '未设置',
+              participantCount: planData.participantCount || 0
+            }
+          });
+          
+          // 如果有 qrPath，更新二维码路径
+          if (planData.qrPath) {
+            const qrcodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(planData.qrPath)}`;
+            this.setData({ qrcodeUrl });
+          }
+        } else {
+          const errorMsg = res.data?.message || '获取随访计划详情失败';
+          console.error('获取随访计划详情失败:', res.data);
+          wx.showToast({
+            title: errorMsg,
+            icon: 'none',
+            duration: 2000
+          });
+          
+          // 失败时延迟返回上一页
+          setTimeout(() => {
+            wx.navigateBack();
+          }, 2000);
+        }
+      },
+      fail: (err) => {
+        this.setData({ loading: false });
+        console.error('获取随访计划详情请求失败:', err);
+        wx.showToast({
+          title: '网络错误，请重试',
+          icon: 'none',
+          duration: 2000
+        });
+        
+        // 失败时延迟返回上一页
+        setTimeout(() => {
+          wx.navigateBack();
+        }, 2000);
+      }
+    });
   },
 
   /**
    * 加载参与患者列表
    */
   loadParticipants(planId) {
-    // 模拟加载参与患者列表
-    setTimeout(() => {
-      // 模拟数据
-      const mockParticipants = [
-        {
-          id: 'p1',
-          name: '张三',
-          fillTime: formatTime(new Date()),
-          status: '已完成'
-        },
-        {
-          id: 'p2',
-          name: '李四',
-          fillTime: formatTime(new Date(Date.now() - 3600000)),
-          status: '已完成'
-        },
-        {
-          id: 'p3',
-          name: '王五',
-          fillTime: formatTime(new Date(Date.now() - 7200000)),
-          status: '已完成'
+    const app = getApp();
+    const sessionToken = wx.getStorageSync('sessionToken') || app.globalData.sessionToken;
+    const API_BASE = app.globalData.apiBase || 'https://server.tka-followup.top';
+    
+    if (!sessionToken) {
+      console.warn('未登录，无法加载参与患者列表');
+      return;
+    }
+    
+    wx.request({
+      url: `${API_BASE}/v1/doctor/plans/${planId}/records`,
+      method: 'GET',
+      header: {
+        'Content-Type': 'application/json',
+        'X-LC-Session': sessionToken
+      },
+      success: (res) => {
+        if (res.statusCode === 200 && res.data && res.data.success) {
+          const recordsData = res.data.data || [];
+          
+          // 格式化随访记录数据
+          const participants = recordsData.map(record => ({
+            id: record.patientId || record.id,
+            name: record.patientName || '未知患者',
+            fillTime: record.fillTime ? formatTime(new Date(record.fillTime)) : 
+                     (record.createdAt ? formatTime(new Date(record.createdAt)) : ''),
+            status: '已完成',
+            recordId: record.id,
+            timeType: record.timeType || '',
+            admissionNumber: record.admissionNumber || ''
+          }));
+          
+          this.setData({
+            participants: participants
+          });
+        } else {
+          const errorMsg = res.data?.message || '获取随访记录失败';
+          console.error('获取随访记录失败:', res.data);
+          wx.showToast({
+            title: errorMsg,
+            icon: 'none',
+            duration: 2000
+          });
+          
+          // 失败时设置为空数组
+          this.setData({
+            participants: []
+          });
         }
-      ];
-      
-      this.setData({
-        participants: mockParticipants
-      });
-    }, 1500);
+      },
+      fail: (err) => {
+        console.error('获取随访记录请求失败:', err);
+        wx.showToast({
+          title: '网络错误，请重试',
+          icon: 'none',
+          duration: 2000
+        });
+        
+        // 失败时设置为空数组
+        this.setData({
+          participants: []
+        });
+      }
+    });
   },
 
   /**
    * 生成随访二维码
+   * 注意：二维码路径会在 loadPlanDetail 中从接口获取并更新
    */
   generateQRCode(planId) {
-    // 生成随访链接（实际应用中应该是真实的小程序页面路径）
-    const followUpUrl = `pages/patient/followup/fill?planId=${planId}&timestamp=${Date.now()}`;
+    // 生成随访链接（默认路径，如果接口返回了 qrPath 会被覆盖）
+    const followUpUrl = `/pages/patient/fill/fill?planId=${planId}`;
     
     // 使用在线二维码生成API
     // 这里使用QR Server API生成二维码图片
@@ -171,27 +280,65 @@ Page({
       confirmColor: '#ff4d4f',
       success: (res) => {
         if (res.confirm) {
+          const app = getApp();
+          const sessionToken = wx.getStorageSync('sessionToken') || app.globalData.sessionToken;
+          const API_BASE = app.globalData.apiBase || 'https://server.tka-followup.top';
+          const planId = this.data.planId;
+          
+          if (!sessionToken) {
+            wx.showToast({
+              title: '请先登录',
+              icon: 'none',
+              duration: 2000
+            });
+            return;
+          }
+          
           wx.showLoading({
             title: '处理中...'
           });
           
-          // 模拟废弃操作
-          setTimeout(() => {
-            wx.hideLoading();
-            wx.showToast({
-              title: '已废弃',
-              icon: 'success',
-              duration: 2000
-            });
-            
-            // 延迟返回上一页
-            setTimeout(() => {
-              wx.navigateBack();
-            }, 2000);
-            
-            // TODO: 调用云函数废弃计划
-            // AV.Cloud.run('discardFollowUpPlan', { planId: this.data.planId })
-          }, 1000);
+          wx.request({
+            url: `${API_BASE}/v1/doctor/plans/${planId}/discard`,
+            method: 'POST',
+            header: {
+              'Content-Type': 'application/json',
+              'X-LC-Session': sessionToken
+            },
+            success: (res) => {
+              wx.hideLoading();
+              
+              if (res.statusCode === 200 && res.data && res.data.success) {
+                wx.showToast({
+                  title: '已废弃',
+                  icon: 'success',
+                  duration: 2000
+                });
+                
+                // 延迟返回上一页
+                setTimeout(() => {
+                  wx.navigateBack();
+                }, 2000);
+              } else {
+                const errorMsg = res.data?.message || '废弃失败';
+                console.error('废弃随访计划失败:', res.data);
+                wx.showToast({
+                  title: errorMsg,
+                  icon: 'none',
+                  duration: 2000
+                });
+              }
+            },
+            fail: (err) => {
+              wx.hideLoading();
+              console.error('废弃随访计划请求失败:', err);
+              wx.showToast({
+                title: '网络错误，请重试',
+                icon: 'none',
+                duration: 2000
+              });
+            }
+          });
         }
       }
     });
@@ -202,6 +349,14 @@ Page({
    */
   viewPatientRecord(e) {
     const patientId = e.currentTarget.dataset.id;
+    if (!patientId) {
+      wx.showToast({
+        title: '患者信息错误',
+        icon: 'none',
+        duration: 2000
+      });
+      return;
+    }
     wx.navigateTo({
       url: `/pages/doctor/plan/patientRecord/patientRecord?planId=${this.data.planId}&patientId=${patientId}`
     });
@@ -333,9 +488,15 @@ Page({
    */
   onPullDownRefresh() {
     // 刷新页面数据
-    this.loadPlanDetail(this.data.planId);
-    this.loadParticipants(this.data.planId);
-    wx.stopPullDownRefresh();
+    const planId = this.data.planId;
+    if (planId) {
+      this.loadPlanDetail(planId);
+      this.loadParticipants(planId);
+    }
+    // 注意：停止下拉刷新应该在请求完成后调用，已在各自的方法中处理
+    setTimeout(() => {
+      wx.stopPullDownRefresh();
+    }, 500);
   },
 
   /**

@@ -1,0 +1,83 @@
+<!--pages/patient/profile/profile.wxml-->
+<view class="page-container">
+  <!-- 表单卡片 -->
+  <view class="form-card">
+    <view class="form-title">编辑个人信息</view>
+    
+    <form bindsubmit="submitProfile">
+      <!-- 姓名 -->
+      <view class="form-item">
+        <view class="label-row">
+          <text class="label">姓名</text>
+          <text class="required">*</text>
+        </view>
+        <input 
+          class="input" 
+          name="name" 
+          placeholder="请输入您的姓名" 
+          value="{{formData.name}}"
+          bindinput="onNameInput"
+        />
+      </view>
+
+      <!-- 出生日期和性别 -->
+      <view class="form-row">
+        <view class="form-item half-item">
+          <view class="label-row">
+            <text class="label">出生日期</text>
+            <text class="required">*</text>
+          </view>
+          <picker 
+            mode="date" 
+            value="{{formData.birthDate}}" 
+            start="1900-01-01"
+            end="{{currentDate}}"
+            bindchange="onDateChange"
+          >
+            <view class="date-selector">
+              <text class="date-text {{formData.birthDate ? '' : 'placeholder'}}">
+                {{formData.birthDate || '请选择出生日期'}}
+              </text>
+            </view>
+          </picker>
+        </view>
+
+        <view class="form-item half-item">
+          <view class="label-row">
+            <text class="label">性别</text>
+            <text class="required">*</text>
+          </view>
+          <view class="gender-selector">
+            <view class="gender-btn {{formData.gender === 'male' ? 'active' : ''}}" bindtap="selectGender" data-gender="male">
+              <text class="gender-text">男</text>
+            </view>
+            <view class="gender-btn {{formData.gender === 'female' ? 'active' : ''}}" bindtap="selectGender" data-gender="female">
+              <text class="gender-text">女</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 身高 -->
+      <view class="form-item">
+        <view class="label-row">
+          <text class="label">身高</text>
+        </view>
+        <input 
+          class="input" 
+          name="height" 
+          type="digit" 
+          placeholder="请输入身高（cm）" 
+          value="{{formData.height}}"
+          bindinput="onHeightInput"
+        />
+      </view>
+
+      <!-- 提交按钮 -->
+      <button class="submit-btn" form-type="submit" loading="{{loading}}">
+        {{loading ? '提交中...' : '保存修改'}}
+      </button>
+    </form>
+  </view>
+</view>
+

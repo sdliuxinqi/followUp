@@ -82,14 +82,24 @@ page {
 }
 
 .fillable-info-input-wrapper {
+  display: flex;
+  align-items: center;
   order: 2;
   width: 100%;
 }
 
+/* 日期选择器 picker 容器 */
+.fillable-date-picker {
+  display: block;
+  width: 100%;
+  height: 72rpx;
+}
+
+/* 体重等可编辑输入框的背景和边框样式 */
 .fillable-info-input {
   width: 100%;
-  min-height: 56rpx;
-  padding: 12rpx 14rpx;
+  min-height: 72rpx;
+  padding: 16rpx 16rpx;
   background: #F7F8FA;
   border: 2rpx solid #E8E8E8;
   border-radius: 8rpx;
@@ -97,6 +107,50 @@ page {
   line-height: 28rpx;
   color: #333333;
   box-sizing: border-box;
+}
+
+.fillable-info-picker {
+  width: 100%;
+  height: 72rpx;
+  padding: 0 16rpx;
+  background: #F7F8FA;
+  border: 2rpx solid #E8E8E8;
+  border-radius: 8rpx;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+/* 日期选择器内部容器 - 使用 flex 实现垂直居中 */
+.date-selector {
+  width: 100%;
+  height: 72rpx;
+  background: #F7F8FA;
+  border: 2rpx solid #E8E8E8;
+  border-radius: 8rpx;
+  padding: 0 14rpx;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.date-selector:active {
+  background: #FFFFFF;
+  border-color: #7BCA9A;
+}
+
+/* 日期选择器文字 */
+.date-text {
+  font-size: 26rpx;
+  color: #333333;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transform: translateY(-15rpx); /* 略微上移，让“请选择日期”更接近视觉中线偏上一点 */
+}
+
+.date-text.placeholder {
+  color: #BBBBBB;
 }
 
 .fillable-info-input:focus {
@@ -127,12 +181,21 @@ page {
 .basic-info-input-wrapper {
   order: 2;
   width: 100%;
+  display: flex;
+  align-items: center; /* 让 basic 区的 picker/view 垂直居中 */
+}
+
+/* 基本信息区的日期选择器 picker 容器 */
+.basic-date-picker {
+  display: block;
+  width: 100%;
+  height: 72rpx;
 }
 
 .basic-info-input {
   width: 100%;
-  min-height: 56rpx;
-  padding: 12rpx 14rpx;
+  min-height: 72rpx;
+  padding: 16rpx 16rpx;
   background: #F7F8FA;
   border: 2rpx solid #E8E8E8;
   border-radius: 8rpx;
@@ -154,8 +217,8 @@ page {
 
 .basic-info-text {
   width: 100%;
-  min-height: 56rpx;
-  padding: 12rpx 14rpx;
+  min-height: 72rpx;
+  padding: 16rpx 16rpx;
   background: #F5F5F5;
   border: 2rpx solid #E8E8E8;
   border-radius: 8rpx;
@@ -173,8 +236,8 @@ page {
 .basic-info-select {
   display: flex;
   align-items: center;
-  min-height: 56rpx;
-  padding: 12rpx 14rpx;
+  min-height: 72rpx;
+  padding: 16rpx 16rpx;
   background: #F7F8FA;
   border: 2rpx solid #E8E8E8;
   border-radius: 8rpx;

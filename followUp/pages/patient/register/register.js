@@ -1,6 +1,4 @@
 // pages/patient/register/register.js
-const AV = require('../../../libs/av-core-min.js');
-
 Page({
   /**
    * 页面的初始数据
@@ -10,71 +8,38 @@ Page({
       name: '',
       birthDate: '',
       gender: '男',
-      admissionNumber: '',
-      phone: '',
-      teamName: '',
-      doctorId: ''
+      phone: ''
     },
-    loading: false,
-    showDoctorModal: false,
-    doctorList: [
-      {
-        id: 'doc001',
-        name: '张伟',
-        teamDisplayName: '张医生团队',
-        title: '主任医师',
-        department: '骨科',
-        hospital: '齐鲁医院',
-        teamName: '张医生团队'
-      },
-      {
-        id: 'doc002',
-        name: '李娜',
-        teamDisplayName: '李医生团队',
-        title: '副主任医师',
-        department: '骨科',
-        hospital: '齐鲁医院',
-        teamName: '李医生团队'
-      },
-      {
-        id: 'doc003',
-        name: '王强',
-        teamDisplayName: '王医生团队',
-        title: '主治医师',
-        department: '骨科',
-        hospital: '齐鲁医院',
-        teamName: '王医生团队'
-      },
-      {
-        id: 'doc004',
-        name: '刘芳',
-        teamDisplayName: '刘医生团队',
-        title: '主任医师',
-        department: '康复科',
-        hospital: '齐鲁医院',
-        teamName: '刘医生团队'
-      },
-      {
-        id: 'doc005',
-        name: '陈明',
-        teamDisplayName: '陈医生团队',
-        title: '副主任医师',
-        department: '运动医学科',
-        hospital: '齐鲁医院',
-        teamName: '陈医生团队'
-      }
-    ]
+    loading: false
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad(options) {
+    const app = getApp();
     // 检查是否已登录
-    const user = getApp().globalData.user;
+    const user = app.globalData.user || wx.getStorageSync('userProfile') || null;
     if (!user) {
       // 未登录，可以选择自动登录或跳转到登录页
       console.log('用户未登录');
+    } else {
+      // 性别优先从接口 / 本地用户信息中带入
+      const rawGender = user.gender || user.sex || user.genderCode;
+      let genderText = '';
+      if (rawGender === 'male' || rawGender === 'M' || rawGender === 1) {
+        genderText = '男';
+      } else if (rawGender === 'female' || rawGender === 'F' || rawGender === 0) {
+        genderText = '女';
+      } else if (rawGender === '男' || rawGender === '女') {
+        genderText = rawGender;
+      }
+
+      if (genderText) {
+        this.setData({
+          'formData.gender': genderText
+        });
+      }
     }
     
     // 设置当前日期作为最大可选日期
@@ -121,79 +86,13 @@ Page({
     });
   },
 
-  /**
-   * 微信授权获取手机号
-   */
-  getPhoneNumber(e) {
-    console.log('获取手机号结果:', e);
-    if (e.detail.errMsg === 'getPhoneNumber:ok') {
-      // 获取到加密数据，需要发送到后端解密
-      // 这里暂时模拟一个手机号
-      wx.showToast({
-        title: '授权成功',
-        icon: 'success'
-      });
-      // 实际应该调用云函数解密
-      // 这里模拟设置手机号
-      this.setData({
-        'formData.phone': '138****8888'
-      });
-    } else {
-      wx.showToast({
-        title: '授权失败',
-        icon: 'none'
-      });
-    }
-  },
-
-  /**
-   * 显示医生列表弹窗
-   */
-  showDoctorList() {
-    this.setData({
-      showDoctorModal: true
-    });
-  },
-
-  /**
-   * 隐藏医生列表弹窗
-   */
-  hideDoctorList() {
-    this.setData({
-      showDoctorModal: false
-    });
-  },
-
-  /**
-   * 阻止事件冒泡
-   */
-  stopPropagation() {
-    // 阻止点击模态框内容时关闭
-  },
-
-  /**
-   * 选择医生团队
-   */
-  selectDoctor(e) {
-    const doctor = e.currentTarget.dataset.doctor;
-    this.setData({
-      'formData.doctorId': doctor.id,
-      'formData.teamName': doctor.teamName,
-      showDoctorModal: false
-    });
-    wx.showToast({
-      title: '选择成功',
-      icon: 'success',
-      duration: 1000
-    });
-  },
 
   /**
    * 提交登记
    */
   submitRegister(e) {
     // 开发环境下直接跳转，不做验证
-    const isDevMode = true;
+    const isDevMode = false;
     if (isDevMode) {
       console.log('开发模式：跳过表单验证，直接跳转');
       this.setData({ loading: true });
@@ -231,51 +130,72 @@ Page({
       wx.showToast({ title: '请选择性别', icon: 'none' });
       return;
     }
-    if (!formData.admissionNumber || !formData.admissionNumber.trim()) {
-      wx.showToast({ title: '请输入住院号', icon: 'none' });
-      return;
-    }
-    if (!this.data.formData.phone) {
+    if (!formData.phone || !formData.phone.trim()) {
       wx.showToast({ title: '请输入手机号', icon: 'none' });
       return;
     }
     
     this.setData({ loading: true });
-    
-    // 生产环境：提交患者登记信息
-    const PatientProfile = new AV.Object('PatientProfile');
-    PatientProfile.set('user', AV.Object.createWithoutData('_User', getApp().globalData.user.id));
-    PatientProfile.set('name', formData.name);
-    PatientProfile.set('birthDate', this.data.formData.birthDate);
-    PatientProfile.set('gender', this.data.formData.gender);
-    PatientProfile.set('admissionNumber', formData.admissionNumber);
-    PatientProfile.set('phone', this.data.formData.phone);
-    PatientProfile.set('doctorId', this.data.formData.doctorId || '');
-    PatientProfile.set('teamName', this.data.formData.teamName || '');
-    PatientProfile.set('status', 'pending');
-    
-    PatientProfile.save().then(() => {
+
+    // 生产环境：通过自定义后端接口提交患者登记信息
+    const app = getApp();
+    const sessionToken = app.globalData.sessionToken || wx.getStorageSync('sessionToken');
+    const API_BASE = app.globalData.apiBase || 'https://server.tka-followup.top';
+
+    if (!sessionToken) {
       this.setData({ loading: false });
       wx.showToast({
-        title: '登记提交成功',
-        icon: 'success',
-        duration: 1500,
-        success: () => {
-          setTimeout(() => {
-            // 跳转到患者首页
-            wx.switchTab({
-              url: '/pages/patient/home/home'
-            });
-          }, 1500);
-        }
-      });
-    }).catch(error => {
-      this.setData({ loading: false });
-      console.error('提交登记失败:', error);
-      wx.showToast({
-        title: '提交失败',
+        title: '未登录，请重新登录',
         icon: 'none'
       });
+      return;
+    }
+
+    wx.request({
+      url: `${API_BASE}/v1/patient/profile`,
+      method: 'POST',
+      header: {
+        'Content-Type': 'application/json',
+        'X-LC-Session': sessionToken
+      },
+      data: {
+        name: formData.name,
+        gender: this.data.formData.gender === '男' ? 'male' : 'female',
+        birthDate: this.data.formData.birthDate,
+        phone: formData.phone
+      },
+      success: (res) => {
+        this.setData({ loading: false });
+        if (res.statusCode === 201 && res.data && res.data.success) {
+          wx.showToast({
+            title: '登记提交成功',
+            icon: 'success',
+            duration: 1500,
+            success: () => {
+              setTimeout(() => {
+                // 跳转到患者首页
+                wx.switchTab({
+                  url: '/pages/patient/home/home'
+                });
+              }, 1500);
+            }
+          });
+        } else {
+          console.error('提交登记失败:', res.data?.message || '未知错误');
+          wx.showToast({
+            title: res.data?.message || '提交失败',
+            icon: 'none'
+          });
+        }
+      },
+      fail: (err) => {
+        this.setData({ loading: false });
+        console.error('提交登记请求失败:', err);
+        wx.showToast({
+          title: '网络错误，请重试',
+          icon: 'none'
+        });
+      }
     });
   },
 

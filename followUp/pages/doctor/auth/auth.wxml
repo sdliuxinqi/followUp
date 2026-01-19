@@ -58,12 +58,12 @@
         </view>
         <view class="upload-hint">请上传清晰的工作证或医师执业证书照片</view>
         <view class="upload-container">
-          <view class="upload-btn" bindtap="chooseWorkCardImage" wx:if="!formData.workCardImage">
+          <view class="upload-btn" bindtap="chooseWorkCardImage" wx:if="{{!formData.workCardImage}}">
             <text class="upload-icon">+</text>
             <text class="upload-text">点击上传照片</text>
           </view>
           <view class="image-preview" wx:else>
-            <image src="{{formData.workCardImage}}" mode="aspectFit" />
+            <image src="{{formData.workCardImage}}" mode="aspectFit" lazy-load="{{false}}" />
             <view class="delete-btn" bindtap="deleteWorkCardImage">
               <text class="delete-icon">×</text>
             </view>

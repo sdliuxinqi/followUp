@@ -12,16 +12,56 @@
       <block wx:for="{{record.requiredAnswers}}" wx:key="index">
         <view class="info-grid-item">
           <view class="info-grid-label">{{item.question}}</view>
-          <view class="info-grid-value">{{item.answer}}</view>
+          <!-- 视频类型显示视频播放器 -->
+          <view wx:if="{{item.type === 'video' && item.answer && item.answer !== '未填写'}}" class="video-answer">
+            <video 
+              class="answer-video" 
+              src="{{item.answer}}" 
+              controls 
+              show-center-play-btn
+              enable-play-gesture
+            ></video>
+          </view>
+          <!-- 其他类型显示文本答案 -->
+          <view wx:else class="info-grid-value">{{item.answer}}</view>
+        </view>
+      </block>
+    </view>
+  </view>
+  
+  <!-- 活动评估（视频等） -->
+  <view class="section-header" wx:if="{{record.activityAnswers && record.activityAnswers.length > 0}}">
+    <view class="section-title">活动评估</view>
+    <view class="section-count">{{record.activityAnswers.length}}项</view>
+  </view>
+
+  <view class="basic-info-card" wx:if="{{record.activityAnswers && record.activityAnswers.length > 0}}">
+    <view class="info-grid">
+      <block wx:for="{{record.activityAnswers}}" wx:key="index">
+        <view class="info-grid-item">
+          <view class="info-grid-label">{{item.question}}</view>
+          <!-- 视频类型显示视频播放器 -->
+          <view wx:if="{{item.type === 'video' && item.answer && item.answer !== '未填写'}}" class="video-answer">
+            <video 
+              class="answer-video" 
+              src="{{item.answer}}" 
+              controls 
+              show-center-play-btn
+              enable-play-gesture
+            ></video>
+          </view>
+          <!-- 其他类型显示文本答案 -->
+          <view wx:else class="info-grid-value">{{item.answer || '未填写'}}</view>
         </view>
       </block>
     </view>
   </view>
 
   <!-- 详细随访内容（功能评分/量表） -->
-  <view class="section-header" wx:if="{{record.functionalAssessments.length > 0}}">
+  <view class="section-header">
     <view class="section-title">详细随访内容</view>
-    <view class="section-count">{{record.functionalAssessments.length}}个功能</view>
+    <view class="section-count" wx:if="{{record.functionalAssessments.length > 0}}">{{record.functionalAssessments.length}}个功能</view>
+    <view class="section-count" wx:else>暂无量表</view>
   </view>
 
   <view class="functional-assessments" wx:if="{{record.functionalAssessments.length > 0}}">
@@ -43,10 +83,26 @@
       <view class="assessment-questions">
         <view class="assessment-question-item" wx:for="{{item.questions}}" wx:key="index" wx:for-item="qItem">
           <view class="question-label">{{qItem.question}}</view>
-          <view class="question-answer">{{qItem.answer}}</view>
+          <!-- 视频类型显示视频播放器 -->
+          <view wx:if="{{qItem.type === 'video' && qItem.videoUrl}}" class="video-answer">
+            <video 
+              class="answer-video" 
+              src="{{qItem.videoUrl}}" 
+              controls 
+              show-center-play-btn
+              enable-play-gesture
+            ></video>
+          </view>
+          <!-- 其他类型显示文本答案 -->
+          <view wx:else class="question-answer">{{qItem.answer || '未填写'}}</view>
         </view>
       </view>
     </view>
+  </view>
+  
+  <!-- 无量表数据提示 -->
+  <view class="empty-tip" wx:if="{{record.functionalAssessments.length === 0}}">
+    <text>该随访记录暂无功能评分量表数据</text>
   </view>
 
   <!-- AI分析报告 -->
@@ -68,31 +124,38 @@
     </block>
     
     <block wx:else>
-      <!-- 综合评估 -->
-      <view class="report-section">
-        <view class="report-section-title">综合评估</view>
-        <view class="report-content">{{record.aiReport.summary}}</view>
+      <!-- 无AI报告提示 -->
+      <view wx:if="{{!record.aiReport.summary && (!record.aiReport.details || record.aiReport.details.length === 0) && (!record.aiReport.suggestions || record.aiReport.suggestions.length === 0)}}" class="empty-tip">
+        <text>AI分析报告暂未生成</text>
       </view>
-
-      <!-- 详细分析 -->
-      <view class="report-section">
-        <view class="report-section-title">详细分析</view>
-        <view class="analysis-item" wx:for="{{record.aiReport.details}}" wx:key="index">
-          <view class="analysis-label">{{item.label}}</view>
-          <view class="analysis-value">{{item.value}}</view>
+      
+      <block wx:else>
+        <!-- 综合评估 -->
+        <view class="report-section" wx:if="{{record.aiReport.summary}}">
+          <view class="report-section-title">综合评估</view>
+          <view class="report-content">{{record.aiReport.summary}}</view>
         </view>
-      </view>
 
-      <!-- 医疗建议 -->
-      <view class="report-section">
-        <view class="report-section-title">医疗建议</view>
-        <view class="suggestions-list">
-          <view class="suggestion-item" wx:for="{{record.aiReport.suggestions}}" wx:key="index">
-            <view class="suggestion-dot"></view>
-            <text class="suggestion-text">{{item}}</text>
+        <!-- 详细分析 -->
+        <view class="report-section" wx:if="{{record.aiReport.details && record.aiReport.details.length > 0}}">
+          <view class="report-section-title">详细分析</view>
+          <view class="analysis-item" wx:for="{{record.aiReport.details}}" wx:key="index">
+            <view class="analysis-label">{{item.label}}</view>
+            <view class="analysis-value">{{item.value}}</view>
           </view>
         </view>
-      </view>
+
+        <!-- 医疗建议 -->
+        <view class="report-section" wx:if="{{record.aiReport.suggestions && record.aiReport.suggestions.length > 0}}">
+          <view class="report-section-title">医疗建议</view>
+          <view class="suggestions-list">
+            <view class="suggestion-item" wx:for="{{record.aiReport.suggestions}}" wx:key="index">
+              <view class="suggestion-dot"></view>
+              <text class="suggestion-text">{{item}}</text>
+            </view>
+          </view>
+        </view>
+      </block>
 
       <!-- 操作按钮 -->
       <view class="report-actions">

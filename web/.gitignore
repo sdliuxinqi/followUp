@@ -4,6 +4,10 @@ start.sh
 .avoscloud
 .leancloud
 
+# Environment variables
+.env
+.env.local
+
 # VIM
 *~
 *.swp

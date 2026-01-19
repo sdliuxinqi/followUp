@@ -2,13 +2,25 @@
 <wxs module="utils">
   // 获取性别显示文本
   function getGenderText(item, answerValue) {
-    if (!item || !item.options || !answerValue) {
+    if (!answerValue) {
       return '';
     }
-    var options = item.options;
-    for (var i = 0; i < options.length; i++) {
-      if (options[i].id === answerValue) {
-        return options[i].text;
+
+    // 兼容后端 gender = 'male' / 'female' 的情况
+    if (answerValue === 'male') {
+      return '男';
+    }
+    if (answerValue === 'female') {
+      return '女';
+    }
+
+    // 兜底：如果题目本身带了 options，则按选项 id 映射
+    if (item && item.options) {
+      var options = item.options;
+      for (var i = 0; i < options.length; i++) {
+        if (options[i].id === answerValue) {
+          return options[i].text;
+        }
       }
     }
     return '';
@@ -32,7 +44,23 @@
         <view class="basic-info-item" wx:for="{{basicInfo}}" wx:key="id">
           <view class="basic-info-label">{{item.title}}</view>
           <view class="basic-info-input-wrapper">
-            <input wx:if="{{item.type === 'text'}}" 
+            <!-- 住院日期和手术日期使用日期选择器（可编辑） -->
+            <picker
+              wx:if="{{item.id === 'basic_admission_date' || item.id === 'basic_surgery_date'}}"
+              class="basic-date-picker"
+              mode="date"
+              value="{{answers[item.id] || ''}}"
+              bindchange="onDateChange"
+              data-question-id="{{item.id}}"
+            >
+              <view class="date-selector">
+                <text class="date-text {{answers[item.id] ? '' : 'placeholder'}}">
+                  {{answers[item.id] || '请选择日期'}}
+                </text>
+              </view>
+            </picker>
+            <!-- 其他文本字段仍然使用普通输入框 -->
+            <input wx:elif="{{item.type === 'text'}}" 
               class="basic-info-input {{item.readonly ? 'readonly-input' : ''}}" 
               placeholder="请输入" 
               bindinput="onAnswerChange" 
@@ -48,12 +76,13 @@
             <!-- 可编辑的 single 类型字段显示为 radio -->
             <view wx:if="{{item.type === 'single' && !item.readonly}}" class="basic-info-select">
               <radio-group 
+                value="{{answers[item.id]}}"
                 bindchange="onSingleSelect" 
                 data-question-id="{{item.id}}"
                 disabled="{{item.readonly}}"
               >
                 <label class="basic-info-option" wx:for="{{item.options}}" wx:for-item="option" wx:key="id">
-                  <radio value="{{option.id}}" checked="{{answers[item.id] === option.id}}" disabled="{{item.readonly}}" />
+                  <radio value="{{option.id}}" disabled="{{item.readonly}}" />
                   <text class="basic-info-option-text">{{option.text}}</text>
                 </label>
               </radio-group>
@@ -63,12 +92,13 @@
       </view>
     </view>
 
-    <!-- 需填写的字段卡片（体重、手术日期、随访日期） -->
+    <!-- 需填写的字段卡片（体重） -->
     <view class="fillable-info-card" wx:if="{{fillableInfo.length > 0}}">
       <view class="fillable-info-grid">
         <view class="fillable-info-item" wx:for="{{fillableInfo}}" wx:key="id">
           <view class="fillable-info-label">{{item.title}}</view>
           <view class="fillable-info-input-wrapper">
+            <!-- 使用普通输入框 -->
             <input 
               class="fillable-info-input" 
               placeholder="请输入" 
@@ -77,27 +107,6 @@
               value="{{answers[item.id] || ''}}"
               placeholder-class="placeholder-text"
             />
-          </view>
-        </view>
-      </view>
-    </view>
-
-    <!-- 其他问题 -->
-    <view class="question-item" wx:for="{{questions}}" wx:for-item="question" wx:key="id">
-      <view class="question-label">{{question.title}}</view>
-
-      <!-- 视频上传 -->
-      <view wx:if="{{question.type === 'video'}}" class="video-upload">
-        <view wx:if="{{!answers[question.id]}}" class="upload-btn" 
-          bindtap="onVideoUpload" 
-          data-question-id="{{question.id}}"
-        >
-          <text>上传视频</text>
-        </view>
-        <view wx:else class="video-preview">
-          <video src="{{answers[question.id]}}" controls></video>
-          <view class="delete-btn" bindtap="onVideoDelete" data-question-id="{{question.id}}">
-            删除视频
           </view>
         </view>
       </view>
@@ -124,21 +133,22 @@
                 min="{{qItem.min || 0}}" 
                 max="{{qItem.max || 10}}" 
                 step="{{qItem.step || 1}}"
-                value="{{answers[qItem.id] !== undefined ? answers[qItem.id] : (qItem.min || 0)}}" 
+                value="{{answers[qItem.id] !== undefined && answers[qItem.id] !== null && answers[qItem.id] !== '' ? answers[qItem.id] : (qItem.min || 0)}}" 
                 bindchange="onSliderChange" 
                 data-question-id="{{qItem.id}}"
               />
-              <text class="slider-value">{{answers[qItem.id] !== undefined ? answers[qItem.id] : (qItem.min || 0)}}分</text>
+              <text class="slider-value">{{answers[qItem.id] !== undefined && answers[qItem.id] !== null && answers[qItem.id] !== '' ? answers[qItem.id] + '分' : '请滑动选择'}}</text>
             </view>
 
             <!-- 单选题（带score） -->
             <view wx:if="{{qItem.type === 'radio'}}" class="options-container">
               <radio-group class="radio-group" 
+                value="{{answers[qItem.id]}}"
                 bindchange="onSingleSelect" 
                 data-question-id="{{qItem.id}}"
               >
                 <label class="option-item" wx:for="{{qItem.options}}" wx:for-item="option" wx:key="id">
-                  <radio value="{{option.id}}" checked="{{answers[qItem.id] === option.id}}" />
+                  <radio value="{{option.id || option.value}}" />
                   <view class="option-content">
                     <text class="option-text">{{option.text}}</text>
                     <text class="option-score" wx:if="{{option.score !== undefined}}">({{option.score}}分)</text>
@@ -146,6 +156,27 @@
                 </label>
               </radio-group>
             </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 其他问题 -->
+    <view class="question-item" wx:for="{{questions}}" wx:for-item="question" wx:key="id">
+      <view class="question-label">{{question.title}}</view>
+
+      <!-- 视频上传 -->
+      <view wx:if="{{question.type === 'video'}}" class="video-upload">
+        <view wx:if="{{!answers[question.id]}}" class="upload-btn" 
+          bindtap="onVideoUpload" 
+          data-question-id="{{question.id}}"
+        >
+          <text>上传视频</text>
+        </view>
+        <view wx:else class="video-preview">
+          <video src="{{answers[question.id]}}" controls></video>
+          <view class="delete-btn" bindtap="onVideoDelete" data-question-id="{{question.id}}">
+            删除视频
           </view>
         </view>
       </view>

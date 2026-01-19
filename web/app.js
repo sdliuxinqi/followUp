@@ -29,13 +29,57 @@ app.enable('trust proxy')
 
 app.use(express.static('public'))
 
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: false }))
+// 增加请求体大小限制，支持大图片上传（10MB）
+// base64 编码会使数据增大约 33%，所以需要更大的限制
+app.use(bodyParser.json({ limit: '10mb' }))
+app.use(bodyParser.urlencoded({ extended: false, limit: '10mb' }))
 app.use(cookieParser())
 
 app.get('/', (req, res) => {
   res.header('Cache-Control', 'no-cache')
   res.render('index', { currentTime: new Date() })
+})
+
+// 简单的健康检查接口 - 用于测试部署是否成功
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    message: '服务运行正常',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'production'
+  })
+})
+
+// 简单的测试接口 - 测试 LeanCloud 连接
+app.get('/test', async (req, res) => {
+  try {
+    // 测试 LeanCloud 连接
+    const TestObject = AV.Object.extend('TestObject')
+    const testObj = new TestObject()
+    testObj.set('testField', 'test')
+    testObj.set('timestamp', new Date())
+    
+    // 尝试保存（使用 useMasterKey 避免权限问题）
+    await testObj.save(null, { useMasterKey: true })
+    
+    res.json({
+      success: true,
+      message: '接口测试成功，LeanCloud 连接正常',
+      timestamp: new Date().toISOString(),
+      testObjectId: testObj.id,
+      leancloud: {
+        appId: process.env.LEANCLOUD_APP_ID ? '已配置' : '未配置',
+        appKey: process.env.LEANCLOUD_APP_KEY ? '已配置' : '未配置'
+      }
+    })
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: '接口测试失败',
+      error: err.message,
+      timestamp: new Date().toISOString()
+    })
+  }
 })
 
 // RESTful API 路由

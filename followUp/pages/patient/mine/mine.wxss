@@ -108,23 +108,95 @@ page {
   flex: 1;
 }
 
+.menu-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6rpx;
+  gap: 12rpx;
+}
+
 .menu-title {
   font-size: 30rpx;
   font-weight: 500;
   color: #1A1A1A;
-  margin-bottom: 6rpx;
+  flex: 1;
+}
+
+.badge-group {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  flex-shrink: 0;
+}
+
+.info-badge {
+  padding: 4rpx 12rpx;
+  background: #fff7e6;
+  border: 1rpx solid #ffd591;
+  border-radius: 12rpx;
+}
+
+.current-badge {
+  padding: 4rpx 12rpx;
+  background: #e6f7ff;
+  border: 1rpx solid #91d5ff;
+  border-radius: 12rpx;
+}
+
+.badge-text {
+  font-size: 20rpx;
+  font-weight: 500;
+}
+
+.info-badge .badge-text {
+  color: #fa8c16;
+}
+
+.current-badge .badge-text {
+  color: #1890ff;
 }
 
 .menu-desc {
   font-size: 24rpx;
   color: #999999;
+  margin-bottom: 4rpx;
+}
+
+.menu-hint {
+  font-size: 22rpx;
+  color: #fa8c16;
+  margin-top: 4rpx;
+}
+
+.menu-actions {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.action-btn {
+  padding: 8rpx 16rpx;
+  background: #f0f0f0;
+  border-radius: 12rpx;
+  transition: all 0.3s ease;
+}
+
+.action-btn:active {
+  background: #e0e0e0;
+  transform: scale(0.95);
+}
+
+.action-text {
+  font-size: 22rpx;
+  color: #666666;
+  font-weight: 500;
 }
 
 .menu-arrow {
   font-size: 48rpx;
   color: #CCCCCC;
   font-weight: 300;
-  margin-left: 16rpx;
 }
 
 /* 版本信息 */
@@ -137,4 +209,43 @@ page {
 .version-text {
   font-size: 24rpx;
   color: #BBBBBB;
+}
+
+/* 加载中状态 */
+.loading-item {
+  padding: 40rpx 24rpx;
+  text-align: center;
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #999999;
+}
+
+/* 空状态 */
+.empty-plans {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60rpx 24rpx;
+}
+
+.empty-icon {
+  font-size: 80rpx;
+  margin-bottom: 24rpx;
+  opacity: 0.5;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #666666;
+  margin-bottom: 12rpx;
+}
+
+.empty-hint {
+  font-size: 24rpx;
+  color: #999999;
+  text-align: center;
+  line-height: 1.6;
 }

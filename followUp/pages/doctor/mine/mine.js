@@ -16,7 +16,8 @@ Page({
       department: '',
       workCardImage: ''
     },
-    saving: false
+    saving: false,
+    loading: false
   },
 
   onLoad() {
@@ -28,74 +29,103 @@ Page({
       mode: 'doctor',
       selected: 2
     })
+    // 每次显示时重新加载，确保数据最新
+    this.loadProfile()
   },
 
   // 加载医生档案信息
   loadProfile() {
-    const isDevMode = true
-    const user = getApp().globalData.user
-
-    if (!user) {
-      wx.navigateTo({ url: '/pages/index/index' })
+    const app = getApp()
+    const sessionToken = app.globalData.sessionToken || wx.getStorageSync('sessionToken')
+    const API_BASE = app.globalData.apiBase || 'https://server.tka-followup.top'
+    
+    if (!sessionToken) {
+      console.warn('未登录，跳转到首页')
+      wx.reLaunch({ url: '/pages/index/index' })
       return
     }
 
-    if (isDevMode) {
-      const mockProfile = {
-        name: '测试医生',
-        hospital: '齐鲁医院',
-        department: '骨科',
-        status: 'approved',
-        statusText: '已认证',
-        workCardImage: ''
-      }
-      this.setData({
-        profile: mockProfile,
-        editForm: {
-          name: mockProfile.name,
-          hospital: mockProfile.hospital,
-          department: mockProfile.department,
-          workCardImage: mockProfile.workCardImage
+    // 显示加载提示
+    this.setData({ loading: true })
+    wx.showLoading({
+      title: '加载中...',
+      mask: true
+    })
+
+    // 调用后端 API 获取医生信息
+    wx.request({
+      url: `${API_BASE}/v1/auth/doctor-profile`,
+      method: 'GET',
+      header: {
+        'Content-Type': 'application/json',
+        'X-Session-Token': sessionToken
+      },
+      success: (res) => {
+        wx.hideLoading()
+        this.setData({ loading: false })
+        
+        if (res.statusCode === 200 && res.data && res.data.success) {
+          const data = res.data.data
+          
+          if (!data) {
+            // 没有医生档案，跳转到认证页面
+            console.log('未找到医生档案，跳转到认证页面')
+            wx.showToast({
+              title: '请先完成认证',
+              icon: 'none',
+              duration: 2000
+            })
+            setTimeout(() => {
+              wx.navigateTo({
+                url: '/pages/doctor/auth/auth'
+              })
+            }, 2000)
+            return
+          }
+
+          // 状态映射
+          const status = data.isApproved ? 'approved' : 'pending'
+          const statusTextMap = {
+            pending: '审核中',
+            approved: '已认证',
+            rejected: '已驳回'
+          }
+
+          const profile = {
+            name: (data.name && typeof data.name === 'string') ? data.name : '',
+            hospital: (data.hospital && typeof data.hospital === 'string') ? data.hospital : '',
+            department: (data.department && typeof data.department === 'string') ? data.department : '',
+            status,
+            statusText: statusTextMap[status] || '未知',
+            workCardImage: (data.workCertUrl && typeof data.workCertUrl === 'string') ? data.workCertUrl : ''
+          }
+
+          this.setData({
+            profile,
+            editForm: {
+              name: profile.name,
+              hospital: profile.hospital,
+              department: profile.department,
+              workCardImage: profile.workCardImage
+            }
+          })
+        } else {
+          console.error('加载医生信息失败:', res.data?.message || '未知错误')
+          wx.showToast({
+            title: res.data?.message || '加载失败',
+            icon: 'none'
+          })
         }
-      })
-      return
-    }
-
-    const query = new AV.Query('DoctorProfile')
-    query.equalTo('user', AV.Object.createWithoutData('_User', user.id))
-    query.first().then(doc => {
-      if (!doc) return
-      const status = doc.get('status') || 'pending'
-      const statusTextMap = {
-        pending: '审核中',
-        approved: '已认证',
-        rejected: '已驳回'
+      },
+      fail: (err) => {
+        wx.hideLoading()
+        this.setData({ loading: false })
+        console.error('加载医生信息请求失败:', err)
+        wx.showToast({
+          title: '网络错误，请重试',
+          icon: 'none'
+        })
       }
-
-      const profile = {
-        name: doc.get('name'),
-        hospital: doc.get('hospital'),
-        department: doc.get('department'),
-        status,
-        statusText: statusTextMap[status] || status,
-        workCardImage: doc.get('workCardImage') || ''
-      }
-
-      this.setData({
-        profile,
-        editForm: {
-          name: profile.name,
-          hospital: profile.hospital,
-          department: profile.department,
-          workCardImage: profile.workCardImage
-        }
-      })
-    }).catch(err => {
-      console.error('加载医生信息失败', err)
-      wx.showToast({
-        title: '加载失败',
-        icon: 'none'
-      })
     })
   },
 

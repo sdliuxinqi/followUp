@@ -1,0 +1,66 @@
+[
+  {
+    "updatedAt": "2026-01-08T09:23:40.289Z",
+    "ACL": {
+      "*": {
+        "read": true,
+        "write": true
+      }
+    },
+    "objectId": "695f1597448e782361822004",
+    "username": "weapp_o3z-C16VOz_bLeUliGHfg3S8Hbwo",
+    "shortId": "efidfx",
+    "createdAt": "2026-01-08T02:25:27.310Z",
+    "emailVerified": false,
+    "authData": {
+      "lc_weapp": {
+        "openid": "o3z-C16VOz_bLeUliGHfg3S8Hbwo",
+        "session_key": "uj2xueqZNWyddrmEEpPYDg=="
+      }
+    },
+    "mobilePhoneVerified": false
+  },
+  {
+    "updatedAt": "2026-01-08T10:15:22.456Z",
+    "ACL": {
+      "*": {
+        "read": true,
+        "write": true
+      }
+    },
+    "objectId": "695f1597448e782361822005",
+    "username": "weapp_o4a-D27WPx_cMfVmjIHgh4T9Icxp",
+    "shortId": "ghjkln",
+    "createdAt": "2026-01-08T03:10:15.789Z",
+    "emailVerified": false,
+    "authData": {
+      "lc_weapp": {
+        "openid": "o4a-D27WPx_cMfVmjIHgh4T9Icxp",
+        "session_key": "vk3yvfqZOXzzeesFFQZEHh=="
+      }
+    },
+    "mobilePhoneVerified": false
+  },
+  {
+    "updatedAt": "2026-01-08T11:30:55.123Z",
+    "ACL": {
+      "*": {
+        "read": true,
+        "write": true
+      }
+    },
+    "objectId": "695f1597448e782361822006",
+    "username": "weapp_o5b-E38XQy_dNgWnkJIhi5U0Jdyq",
+    "shortId": "mnopqr",
+    "createdAt": "2026-01-08T04:20:33.456Z",
+    "emailVerified": false,
+    "authData": {
+      "lc_weapp": {
+        "openid": "o5b-E38XQy_dNgWnkJIhi5U0Jdyq",
+        "session_key": "wl4zwgrZPYaafftgGGRaFIi=="
+      }
+    },
+    "mobilePhoneVerified": false
+  }
+]
+

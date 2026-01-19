@@ -551,6 +551,14 @@ page {
   border-left: 4rpx solid #52c41a;
 }
 
+.doctor-item.disabled {
+  opacity: 0.7;
+}
+
+.doctor-item.disabled:active {
+  background: #f6ffed;
+}
+
 /* 空状态 */
 .empty-doctor {
   padding: 80rpx 40rpx;

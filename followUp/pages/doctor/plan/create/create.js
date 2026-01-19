@@ -630,92 +630,121 @@ Page({
     const { formData, availableQuestions, assessmentScales } = this.data;
     const app = getApp();
 
-    // 构建问题列表：从基础问题和量表问题中收集所有选中的问题
-    const questions = [];
+    // 检查登录状态
+    const sessionToken = app.globalData.sessionToken || wx.getStorageSync('sessionToken');
+    if (!sessionToken) {
+      this.setData({ loading: false });
+      wx.showToast({
+        title: '请先登录',
+        icon: 'none'
+      });
+      setTimeout(() => {
+        wx.reLaunch({ url: '/pages/index/index' });
+      }, 1500);
+      return;
+    }
 
-    // 收集基础问题（一般状态、活动评估、AI评估）
+    // 构建问题列表：只收集基础问题的 id
+    const questions = [];
+    const functionalCodes = []; // 收集选中的量表 code
+
+    // 收集基础问题（一般状态、活动评估、AI评估）- 只记录 id
     availableQuestions
       .filter(q => q.selected)
       .forEach(q => {
         questions.push({
-          id: q.id,
-          type: q.type,
-          title: q.title,
-          text: q.text,
-          options: q.options || [],
-          min: q.min,
-          max: q.max,
-          step: q.step,
-          marks: q.marks,
-          required: q.required
+          id: q.id
         });
       });
 
-    // 收集量表问题
+    // 收集量表 code - 如果量表被选中（通过 allSelected 或任何问题被选中），就记录整个量表的 code
     assessmentScales.forEach(scale => {
-      scale.questions
-        .filter(q => q.selected)
-        .forEach(q => {
-          questions.push({
-            id: q.id,
-            type: q.type,
-            title: q.title,
-            text: q.text,
-            options: q.options || [],
-            min: q.min,
-            max: q.max,
-            step: q.step,
-            marks: q.marks,
-            required: q.required
-          });
-        });
+      // 检查量表是否被选中：要么是全选状态，要么有任何问题被选中
+      const isSelected = scale.allSelected || scale.questions.some(q => q.selected);
+      if (isSelected) {
+        // 如果该量表被选中，记录量表 code（不展开问题）
+        functionalCodes.push(scale.id);
+        console.log('选中量表:', scale.id, 'allSelected:', scale.allSelected, 'questions selected:', scale.questions.filter(q => q.selected).length);
+      }
     });
+
+    // 检查是否启用 AI 评估
+    const aiEnabled = availableQuestions.some(q => q.id === 'ai_enable' && q.selected);
 
     // 准备创建数据
     const planData = {
-      creator: app.globalData.user.id,
       title: formData.title,
       timeTypes: formData.timeTypes,
-      questions: questions,
-      participantCount: 0
+      questions: questions
     };
 
-    // 开发环境下跳过云函数调用，直接返回成功
-    const isDevMode = true;
-    if (isDevMode) {
-      console.log('开发模式：跳过创建随访计划的云函数调用');
-      this.setData({ loading: false });
-      wx.showToast({
-        title: '创建成功（开发模式）',
-        success: () => {
-          // 返回医生首页
-          wx.switchTab({
-            url: '/pages/doctor/home/home'
-          });
-        }
-      });
-      return;
+    // 添加可选字段
+    if (aiEnabled) {
+      planData.aiEnabled = true;
+    }
+    if (functionalCodes.length > 0) {
+      planData.functionalCodes = functionalCodes;
     }
 
-    // 生产环境下调用云函数创建随访计划
-    AV.Cloud.run('createFollowUpPlan', planData).then(result => {
-      this.setData({ loading: false });
-      wx.showToast({
-        title: '创建成功',
-        success: () => {
-          // 返回医生首页
-          wx.switchTab({
-            url: '/pages/doctor/home/home'
+    // 调试日志
+    console.log('创建随访计划数据:', {
+      title: planData.title,
+      timeTypes: planData.timeTypes,
+      questionsCount: planData.questions.length,
+      functionalCodes: planData.functionalCodes,
+      aiEnabled: planData.aiEnabled
+    });
+
+    // 调用后端 API 创建随访计划
+    const API_BASE = app.globalData.apiBase || 'https://server.tka-followup.top';
+    
+    // 调试：打印发送的数据
+    console.log('发送到后端的数据:', JSON.stringify(planData, null, 2));
+    
+    wx.request({
+      url: `${API_BASE}/v1/doctor/plans`,
+      method: 'POST',
+      header: {
+        'Content-Type': 'application/json',
+        'X-LC-Session': sessionToken
+      },
+      data: planData,
+      success: (res) => {
+        console.log('后端响应:', res.data);
+        this.setData({ loading: false });
+
+        if (res.statusCode === 201 && res.data && res.data.success) {
+          wx.showToast({
+            title: '创建成功',
+            icon: 'success',
+            success: () => {
+              // 返回医生首页
+              setTimeout(() => {
+                wx.switchTab({
+                  url: '/pages/doctor/home/home'
+                });
+              }, 1500);
+            }
+          });
+        } else {
+          const errorMsg = res.data?.message || '创建失败';
+          console.error('创建随访计划失败:', res.data);
+          wx.showToast({
+            title: errorMsg,
+            icon: 'none',
+            duration: 3000
           });
         }
-      });
-    }).catch(error => {
-      this.setData({ loading: false });
-      console.error('创建随访计划失败:', error);
-      wx.showToast({
-        title: '创建失败',
-        icon: 'none'
-      });
+      },
+      fail: (err) => {
+        this.setData({ loading: false });
+        console.error('创建随访计划请求失败:', err);
+        wx.showToast({
+          title: '网络错误，请重试',
+          icon: 'none',
+          duration: 3000
+        });
+      }
     });
   },
 

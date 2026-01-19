@@ -1,5 +1,6 @@
 // pages/patient/fill/fill.js
-const AV = require('../../../libs/av-core-min.js');
+const AV = require('../../../libs/av-core-min.js'); // 仅用于文件上传
+const app = getApp();
 
 Page({
 
@@ -37,14 +38,16 @@ Page({
    */
   onLoad(options) {
     if (options.planId) {
+      // 先检查登录状态
+      this.checkLogin();
       this.setData({ 
         planId: options.planId,
         timeType: options.timeType // 保存timeType参数，用于判断是否是术前随访
       });
-      // 先加载患者信息，再加载随访计划
+      // 先加载患者资料（从 PatientProfile 按 backend_schema 取性别等基础信息）
       this.loadPatientInfo();
+      // 再通过 planId 从后端加载随访计划（附带患者基础信息）
       this.loadFollowUpPlan(options);
-      this.checkLogin();
     }
   },
 
@@ -64,26 +67,34 @@ Page({
 
   // 检查登录状态
   checkLogin() {
-    const user = AV.User.current();
-    if (!user) {
-      // 如果未登录，执行微信一键登录
-      wx.showLoading({ title: '登录中...' });
-      AV.User.loginWithWeapp().then(user => {
-        wx.hideLoading();
-      }).catch(error => {
-        wx.hideLoading();
+    // 使用自定义登录方式，检查全局用户信息
+    const app = getApp();
+    const user = app.globalData.user;
+    const sessionToken = app.globalData.sessionToken || wx.getStorageSync('sessionToken');
+    
+    if (!user || !sessionToken) {
+      // 如果未登录，跳转到首页进行登录
+      console.log('填写页面：未登录，跳转到首页');
         wx.showToast({
-          title: '登录失败',
-          icon: 'none'
-        });
-        console.error('登录失败:', error);
+        title: '请先登录',
+        icon: 'none',
+        duration: 2000
       });
+      setTimeout(() => {
+        wx.reLaunch({
+          url: '/pages/index/index'
+        });
+      }, 2000);
+      return;
     }
+    
+    // 已登录，继续
+    console.log('填写页面：已登录，用户ID:', user.id);
   },
 
   // 加载患者基本信息（从接口获取）
   loadPatientInfo() {
-    const isDevMode = true;
+    const isDevMode = false;
     if (isDevMode) {
       // 模拟从接口获取的患者信息
       const mockPatientInfo = {
@@ -113,40 +124,110 @@ Page({
       return;
     }
     
-    // 生产环境：从接口获取患者信息
-    // const query = new AV.Query('PatientProfile');
-    // query.equalTo('user', AV.User.current());
-    // query.first().then(profile => {
-    //   const patientInfo = {
-    //     name: profile.get('name'),
-    //     gender: profile.get('gender') === '男' ? 'male' : 'female',
-    //     birthDate: profile.get('birthDate'),
-    //     height: profile.get('height'),
-    //     admissionNumber: profile.get('admissionNumber'),
-    //     admissionDate: profile.get('admissionDate'),
-    //     contact: profile.get('phone')
-    //   };
-    //   
-    //   const answers = { ...this.data.answers };
-    //   answers['basic_name'] = patientInfo.name;
-    //   answers['basic_gender'] = patientInfo.gender;
-    //   answers['basic_birth_date'] = patientInfo.birthDate;
-    //   answers['basic_height'] = patientInfo.height;
-    //   answers['basic_admission_number'] = patientInfo.admissionNumber;
-    //   answers['basic_admission_date'] = patientInfo.admissionDate;
-    //   answers['basic_contact'] = patientInfo.contact;
-    //   
-    //   this.setData({
-    //     patientInfo: patientInfo,
-    //     answers: answers
-    //   });
-    // });
+    // 生产环境：优先使用首页缓存的患者资料，其次再请求接口
+    const cachedProfile = app.globalData.patientProfile || wx.getStorageSync('patientProfile');
+    console.log('随访问卷 loadPatientInfo 缓存的 patientProfile:', cachedProfile);
+    if (cachedProfile && typeof cachedProfile === 'object') {
+      const profile = cachedProfile;
+      console.log('随访问卷 loadPatientInfo 使用缓存 profile.gender:', profile.gender);
+      const patientInfo = {
+        name: profile.name || '',
+        // backend_schema: gender 建议值 male / female，这里统一映射到 male/female
+        gender: profile.gender === 'male' || profile.gender === 'female'
+          ? profile.gender
+          : (profile.gender === '男'
+            ? 'male'
+            : (profile.gender === '女' ? 'female' : (profile.gender || ''))),
+        birthDate: profile.birthDate || '',
+        height: profile.height || '',
+        admissionNumber: profile.admissionNumber || '',
+        admissionDate: profile.admissionDate || '',
+        contact: profile.phone || ''
+      };
+
+      const answers = { ...this.data.answers };
+      console.log('随访问卷 loadPatientInfo 映射后的 patientInfo.gender:', patientInfo.gender);
+      answers['basic_name'] = patientInfo.name;
+      // 关键：把 basic_gender 直接设为 male/female，方便 WXS 通过 id 匹配 options
+      answers['basic_gender'] = patientInfo.gender;
+      answers['basic_birth_date'] = patientInfo.birthDate;
+      answers['basic_height'] = patientInfo.height;
+      answers['basic_admission_number'] = patientInfo.admissionNumber;
+      answers['basic_admission_date'] = patientInfo.admissionDate;
+      answers['basic_contact'] = patientInfo.contact;
+
+      this.setData({
+        patientInfo,
+        answers
+      });
+      return;
+    }
+
+    // 如果没有缓存，再通过自定义后端接口获取患者信息
+    const sessionToken = app.globalData.sessionToken || wx.getStorageSync('sessionToken');
+    const API_BASE = app.globalData.apiBase || 'https://server.tka-followup.top';
+
+    if (!sessionToken) {
+      console.warn('未登录用户，无法加载患者信息');
+      return;
+    }
+
+    wx.request({
+      url: `${API_BASE}/v1/patient/profile`,
+      method: 'GET',
+      header: {
+        'Content-Type': 'application/json',
+        'X-LC-Session': sessionToken
+      },
+      success: (res) => {
+        console.log('随访问卷 loadPatientInfo 接口返回:', res.data);
+        if (res.statusCode === 200 && res.data && res.data.success && res.data.data) {
+          const profile = res.data.data;
+          console.log('随访问卷 loadPatientInfo 接口 profile.gender:', profile.gender);
+          const patientInfo = {
+            name: profile.name || '',
+            gender: profile.gender === 'male' || profile.gender === 'female'
+              ? profile.gender
+              : (profile.gender === '男'
+                ? 'male'
+                : (profile.gender === '女' ? 'female' : (profile.gender || ''))),
+            birthDate: profile.birthDate || '',
+            height: profile.height || '',
+            admissionNumber: profile.admissionNumber || '',
+            admissionDate: profile.admissionDate || '',
+            contact: profile.phone || ''
+          };
+
+          const answers = { ...this.data.answers };
+          console.log('随访问卷 loadPatientInfo(接口) 映射后的 patientInfo.gender:', patientInfo.gender);
+          answers['basic_name'] = patientInfo.name;
+          answers['basic_gender'] = patientInfo.gender;
+          answers['basic_birth_date'] = patientInfo.birthDate;
+          answers['basic_height'] = patientInfo.height;
+          answers['basic_admission_number'] = patientInfo.admissionNumber;
+          answers['basic_admission_date'] = patientInfo.admissionDate;
+          answers['basic_contact'] = patientInfo.contact;
+
+          this.setData({
+            patientInfo,
+            answers
+          });
+        }
+      },
+      fail: (err) => {
+        console.error('患者信息加载失败:', err);
+        wx.showToast({
+          title: '患者信息加载失败',
+          icon: 'none'
+        });
+      }
+    });
   },
 
   // 加载随访计划
   loadFollowUpPlan(options = {}) {
     // 开发模式直接使用mock数据
-    const isDevMode = true;
+    const isDevMode = false;
     if (isDevMode || this.data.planId === 'mock001') {
       const mockPlan = {
         title: isPreoperative ? '术前基础评估' : '膝关节术后康复随访',
@@ -203,7 +284,7 @@ Page({
             type: 'text',
             title: '住院日期',
             required: true,
-            readonly: true // 从接口获取，只读
+            readonly: false // 需要手动选择，使用日期选择器
           },
           {
             id: 'basic_surgery_date',
@@ -258,12 +339,8 @@ Page({
       // 只读的基本信息
       const basicInfo = mockPlan.questions.filter(q => basicInfoFields.includes(q.id));
       
-      // 需要填写的字段
+      // 需要填写的字段（始终显示手术日期，但后端会根据是否是术前随访决定是否必填）
       let fillableInfo = mockPlan.questions.filter(q => fillableFields.includes(q.id));
-      // 如果是术前随访，过滤掉手术日期字段
-      if (isPreoperative) {
-        fillableInfo = fillableInfo.filter(q => q.id !== 'basic_surgery_date');
-      }
       
       // 其他问题（活动评估等）
       const filteredQuestions = mockPlan.questions.filter(q => 
@@ -432,48 +509,235 @@ Page({
       return;
     }
 
-    // 生产环境实际查询代码
-    const query = new AV.Query('FollowUpPlan');
-    query.get(this.data.planId).then(plan => {
-      const timeTypes = plan.get('timeTypes') || [];
-      const isPreoperative = timeTypes.includes('preoperative');
+    // 生产环境：通过自定义后端接口按 planId 加载随访计划
+    const sessionToken = app.globalData.sessionToken || wx.getStorageSync('sessionToken');
+    const API_BASE = app.globalData.apiBase || 'https://server.tka-followup.top';
+
+    if (!sessionToken) {
+      wx.showToast({
+        title: '未登录，请重新登录',
+        icon: 'none'
+      });
+      return;
+    }
+
+    wx.showLoading({
+      title: '加载中...',
+      mask: true
+    });
+
+    // 同时加载随访计划和 commitment 信息
+    Promise.all([
+      // 加载随访计划
+      new Promise((resolve, reject) => {
+    wx.request({
+      url: `${API_BASE}/v1/followups/plans/${this.data.planId}`,
+      method: 'GET',
+      header: {
+        'Content-Type': 'application/json',
+        'X-LC-Session': sessionToken
+      },
+          success: resolve,
+          fail: reject
+        });
+      }),
+      // 加载 commitment 信息（获取住院号、住院日期、手术日期）
+      new Promise((resolve, reject) => {
+        wx.request({
+          url: `${API_BASE}/v1/patient/commitments/${this.data.planId}/info`,
+          method: 'GET',
+          header: {
+            'Content-Type': 'application/json',
+            'X-LC-Session': sessionToken
+          },
+          success: resolve,
+          fail: reject
+        });
+      })
+    ]).then(([planRes, commitmentRes]) => {
+        wx.hideLoading();
       
-      const allQuestions = plan.get('questions') || [];
-      
-      // 分离基本信息和其他问题
-      const basicInfoFields = ['basic_name', 'basic_gender', 'basic_birth_date', 'basic_height', 
-                               'basic_admission_number', 'basic_admission_date', 'basic_contact'];
-      
-      // 需要填写的字段（体重、手术日期、随访日期）
-      const fillableFields = ['basic_weight', 'basic_surgery_date', 'basic_visit_date'];
-      
-      // 只读的基本信息
-      const basicInfo = allQuestions.filter(q => basicInfoFields.includes(q.id));
-      
-      // 需要填写的字段
-      let fillableInfo = allQuestions.filter(q => fillableFields.includes(q.id));
-      // 如果是术前随访，过滤掉手术日期字段
-      if (isPreoperative) {
-        fillableInfo = fillableInfo.filter(q => q.id !== 'basic_surgery_date');
+      // 检查随访计划请求是否成功
+      if (planRes.statusCode !== 200 || !planRes.data || !planRes.data.success) {
+        console.error('加载随访计划失败:', planRes);
+        wx.showToast({
+          title: planRes.data?.message || '加载随访计划失败',
+          icon: 'none',
+          duration: 2000
+        });
+        return;
       }
       
+      const data = planRes.data.data || {};
+          const plan = data.plan || {};
+          const patientProfile = data.patientProfile || null;
+      
+      // 处理 commitment 数据（住院号、住院日期、手术日期）
+      let commitmentData = null;
+      if (commitmentRes.statusCode === 200 && commitmentRes.data && commitmentRes.data.success) {
+        commitmentData = commitmentRes.data.data || null;
+      } else {
+        // commitment 信息获取失败不影响主流程，只记录日志
+        console.warn('获取 commitment 信息失败（可选）:', commitmentRes);
+      }
+      
+      // 处理随访计划数据
+      if (plan && plan.title) {
+
+          console.log('=== 随访计划接口返回原始数据 ===', JSON.stringify(data));
+          console.log('=== plan 内容 ===', JSON.stringify(plan));
+
+          const timeTypes = plan.timeTypes || [];
+          const isPreoperative = timeTypes.includes('preoperative') ||
+            (options && options.timeType === 'preoperative') ||
+            this.data.timeType === 'preoperative';
+      
+          const allQuestions = plan.questions || [];
+      
+      // 分离基本信息和其他问题
+        // 基本信息卡片：姓名、性别、出生日期、身高、住院号、住院日期、手术日期、联系方式
+      const basicInfoFields = ['basic_name', 'basic_gender', 'basic_birth_date', 'basic_height', 
+                                 'basic_admission_number', 'basic_admission_date', 'basic_surgery_date', 'basic_contact'];
+      
+        // 需要填写的字段（体重，随访日期不显示）
+        const fillableFields = ['basic_weight'];
+      
+          // 只读的基本信息（强制设置性别为只读）
+        let basicInfo = allQuestions
+            .filter(q => basicInfoFields.includes(q.id))
+            .map(q => {
+              // 性别字段强制设置为只读
+              if (q.id === 'basic_gender') {
+                return { ...q, readonly: true };
+              }
+              return q;
+            });
+      
+          // 需要填写的字段（始终显示手术日期，但后端会根据是否是术前随访决定是否必填）
+      let fillableInfo = allQuestions.filter(q => fillableFields.includes(q.id));
+      
+          // 其他问题（活动评估等）
       const questions = allQuestions.filter(q => 
         !basicInfoFields.includes(q.id) && !fillableFields.includes(q.id)
       );
+
+          // 功能评分量表
+          let functionalAssessments = plan.functionalAssessments || [];
+          const functionalCodes = plan.functionalCodes || [];
+          
+          console.log('=== functionalCodes (后端存储的量表代码) ===', JSON.stringify(functionalCodes));
+          console.log('=== functionalAssessments (后端还原后的完整量表数据) ===', JSON.stringify(functionalAssessments));
+          console.log('=== functionalAssessments 长度 ===', functionalAssessments.length);
+          
+          // 如果 functionalCodes 有值但 functionalAssessments 为空，说明后端还原失败
+          // 前端自己根据 functionalCodes 还原量表数据（兜底方案）
+          if (functionalCodes.length > 0 && functionalAssessments.length === 0) {
+            console.warn('⚠️ 警告：后端返回了 functionalCodes，但 functionalAssessments 为空数组！');
+            console.warn('尝试前端还原量表数据...');
+            functionalAssessments = this.restoreFunctionalAssessments(functionalCodes);
+            console.log('=== 前端还原后的 functionalAssessments ===', JSON.stringify(functionalAssessments));
+            console.log('=== 前端还原后的 functionalAssessments 长度 ===', functionalAssessments.length);
+          }
+
+          // 如果后端返回了患者资料，顺便填充只读基础信息答案
+          // 注意：这里不能把已有的 gender 清空，否则会覆盖掉 loadPatientInfo 里从 /v1/patient/profile 拿到的值
+          let answers = { ...this.data.answers };
+          if (patientProfile) {
+            // 先用当前 answers 里的 basic_gender 作为兜底
+            const currentGender = answers['basic_gender'] || '';
+            // 再根据 patientProfile.gender 做一次映射（如果有值就覆盖）
+            let mappedGender = '';
+            if (patientProfile.gender === 'male' || patientProfile.gender === 'female') {
+              mappedGender = patientProfile.gender;
+            } else if (patientProfile.gender === '男') {
+              mappedGender = 'male';
+            } else if (patientProfile.gender === '女') {
+              mappedGender = 'female';
+            }
+
+            const finalGender = mappedGender || currentGender || '';
+
+            const patientInfo = {
+              name: patientProfile.name || '',
+              gender: finalGender,
+              birthDate: patientProfile.birthDate || '',
+              height: patientProfile.height || '',
+              admissionNumber: patientProfile.admissionNumber || '',
+              admissionDate: patientProfile.admissionDate || '',
+              contact: patientProfile.phone || ''
+            };
+
+            answers['basic_name'] = patientInfo.name;
+            if (finalGender) {
+              answers['basic_gender'] = finalGender;
+            }
+            answers['basic_birth_date'] = patientInfo.birthDate;
+            answers['basic_height'] = patientInfo.height;
+            answers['basic_admission_number'] = patientInfo.admissionNumber;
+            answers['basic_admission_date'] = patientInfo.admissionDate;
+            answers['basic_contact'] = patientInfo.contact;
+
+            this.setData({
+              patientInfo
+            });
+          }
+        
+        // 从 commitment 中获取住院号、住院日期、手术日期（如果有）
+        if (commitmentData) {
+          // 优先使用 commitment 中的住院号
+          if (commitmentData.admissionNumber) {
+            answers['basic_admission_number'] = commitmentData.admissionNumber;
+          }
+          // 优先使用 commitment 中的住院日期（可编辑，不设置为只读）
+          if (commitmentData.admissionDate) {
+            answers['basic_admission_date'] = commitmentData.admissionDate;
+          }
+          // 优先使用 commitment 中的手术日期（可编辑，不设置为只读）
+          if (commitmentData.surgeryDate) {
+            answers['basic_surgery_date'] = commitmentData.surgeryDate;
+          }
+        }
+        
+        // 随访日期不需要显示，提交时自动获取当前日期
+        // 确保 answers 中包含随访日期（使用当前日期），但不显示在界面上
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const todayStr = `${year}-${month}-${day}`;
+        answers['basic_visit_date'] = todayStr;
       
       this.setData({
-        planTitle: plan.get('title'),
-        basicInfo: basicInfo,
-        fillableInfo: fillableInfo,
-        questions: questions,
-        functionalAssessments: plan.get('functionalAssessments') || [],
-        isPreoperative: isPreoperative
+            planTitle: plan.title || '',
+            basicInfo,
+            fillableInfo,
+            questions,
+            functionalAssessments,
+            isPreoperative,
+            answers
+          });
+        } else {
+        console.error('随访计划数据格式错误:', plan);
+          wx.showToast({
+          title: '随访计划数据格式错误',
+            icon: 'none'
       });
-    }).catch(error => {
-      console.error('加载随访计划失败:', error);
+        }
+    }).catch((err) => {
+        wx.hideLoading();
+      console.error('加载数据失败:', err);
+      let errorMsg = '网络错误，请重试';
+      if (err.errMsg) {
+        if (err.errMsg.includes('timeout')) {
+          errorMsg = '请求超时，请检查网络';
+        } else if (err.errMsg.includes('fail')) {
+          errorMsg = '网络请求失败，请检查网络连接';
+        }
+      }
       wx.showToast({
-        title: '加载失败',
-        icon: 'none'
+        title: errorMsg,
+        icon: 'none',
+        duration: 2000
       });
     });
   },
@@ -484,6 +748,15 @@ Page({
     const answer = e.detail.value;
     const answers = this.data.answers;
     answers[questionId] = answer;
+    this.setData({ answers });
+  },
+
+  // 日期选择器变化
+  onDateChange(e) {
+    const questionId = e.currentTarget.dataset.questionId;
+    const date = e.detail.value;
+    const answers = this.data.answers;
+    answers[questionId] = date;
     this.setData({ answers });
   },
 
@@ -499,10 +772,39 @@ Page({
   // 单选题选择
   onSingleSelect(e) {
     const questionId = e.currentTarget.dataset.questionId;
-    const answer = e.detail.value;
+    const selectedValue = e.detail.value;
+    
+    // 查找对应的选项，保存选项的完整信息（包括 score）
+    // 首先找到这个问题
+    let selectedOption = null;
+    for (const assessment of this.data.functionalAssessments) {
+      const question = (assessment.questions || []).find(q => q.id === questionId);
+      if (question && question.options) {
+        selectedOption = question.options.find(opt => (opt.id || opt.value) === selectedValue);
+        if (selectedOption) {
+          break;
+        }
+      }
+    }
+    
+    // 保存答案：优先保存选项的 id，如果没有则保存 value 或 score
+    // 格式：保存为对象 { optionId: '...', score: ..., text: '...' } 以便后续还原
     const answers = this.data.answers;
-    answers[questionId] = answer;
+    if (selectedOption) {
+      // 保存选项的完整信息（JSON 字符串格式，便于后端解析）
+      answers[questionId] = JSON.stringify({
+        optionId: selectedOption.id || selectedValue,
+        score: selectedOption.score,
+        text: selectedOption.text,
+        value: selectedValue
+      });
+    } else {
+      // 如果找不到选项，至少保存选中的值
+      answers[questionId] = selectedValue;
+    }
+    
     this.setData({ answers });
+    console.log(`问题 ${questionId} 选择:`, answers[questionId]);
   },
 
   // 多选题选择
@@ -587,23 +889,21 @@ Page({
       maxDuration: 60,
       camera: 'back',
       success: res => {
-        // 上传视频到LeanCloud
-        const file = new AV.File(res.tempFilePath, {
-          blob: res.tempFilePath
+        // 暂时不走 LeanCloud 上传，直接保存本地临时路径到答案中
+        // 后端如果以后需要真实可访问的 URL，可以再接入自定义上传接口
+        const answers = this.data.answers;
+        answers[questionId] = res.tempFilePath;
+        this.setData({ answers });
+        wx.showToast({
+          title: '视频已选择',
+          icon: 'success'
         });
-        wx.showLoading({ title: '上传中...' });
-        file.save().then(savedFile => {
-          wx.hideLoading();
-          const answers = this.data.answers;
-          answers[questionId] = savedFile.url();
-          this.setData({ answers });
-        }).catch(error => {
-          wx.hideLoading();
-          wx.showToast({
-            title: '上传失败',
-            icon: 'none'
-          });
-          console.error('视频上传失败:', error);
+      },
+      fail: err => {
+        console.error('选择视频失败:', err);
+        wx.showToast({
+          title: '选择视频失败',
+          icon: 'none'
         });
       }
     });
@@ -643,7 +943,7 @@ Page({
     this.setData({ submitting: true });
 
     // 开发模式直接跳转
-    const isDevMode = true;
+    const isDevMode = false;
     if (isDevMode) {
       setTimeout(() => {
         this.setData({ submitting: false });
@@ -661,29 +961,90 @@ Page({
       return;
     }
 
-    // 生产环境实际提交代码
-    AV.Cloud.run('submitFollowUpRecord', {
-      planId: this.data.planId,
-      answers: this.data.answers
-    }).then(result => {
+    // 生产环境实际提交代码：调用自定义后端接口
+    const sessionToken = app.globalData.sessionToken || wx.getStorageSync('sessionToken');
+    const API_BASE = app.globalData.apiBase || 'https://server.tka-followup.top';
+
+    if (!sessionToken) {
       this.setData({ submitting: false });
       wx.showToast({
-        title: '提交成功',
-        icon: 'success'
-      });
-      // 跳转到结果页
-      setTimeout(() => {
-        wx.navigateTo({
-          url: `/pages/patient/record/detail/detail?id=${result.recordId}`
-        });
-      }, 1500);
-    }).catch(error => {
-      this.setData({ submitting: false });
-      wx.showToast({
-        title: '提交失败',
+        title: '未登录，请重新登录',
         icon: 'none'
       });
-      console.error('提交失败:', error);
+      return;
+    }
+
+    // 自动获取当前日期作为随访日期
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const todayStr = `${year}-${month}-${day}`;
+    
+    // 确保 answers 中包含随访日期（使用当前日期）
+    const finalAnswers = {
+      ...this.data.answers,
+      basic_visit_date: todayStr
+    };
+
+    // 只提交答案，不提交量表结构（量表结构由前端还原，不需要保存）
+    const submitData = {
+      planId: this.data.planId,
+      timeType: this.data.timeType,
+      answers: finalAnswers
+    };
+
+    // 调试日志：检查提交的答案
+    console.log('=== 提交随访记录 ===')
+    console.log('planId:', this.data.planId)
+    console.log('timeType:', this.data.timeType)
+    console.log('提交的 answers 键:', Object.keys(finalAnswers))
+    console.log('量表相关答案:')
+    Object.keys(finalAnswers).forEach(key => {
+      if (key.startsWith('OKS_') || key.startsWith('VAS_') || key.startsWith('EQ-')) {
+        console.log(`  ${key}: ${finalAnswers[key]}`)
+      }
+    })
+    console.log('完整 answers:', JSON.stringify(finalAnswers, null, 2))
+
+    wx.request({
+      url: `${API_BASE}/v1/followups/records`,
+      method: 'POST',
+      header: {
+        'Content-Type': 'application/json',
+        'X-LC-Session': sessionToken
+      },
+      data: submitData,
+      success: (res) => {
+        this.setData({ submitting: false });
+        if ((res.statusCode === 200 || res.statusCode === 201) && res.data && res.data.success) {
+          wx.showToast({
+            title: '提交成功',
+            icon: 'success',
+            duration: 1500
+          });
+          // 返回首页
+          setTimeout(() => {
+            wx.switchTab({
+              url: '/pages/patient/home/home'
+            });
+          }, 1500);
+        } else {
+          console.error('提交随访失败:', res.data?.message || '未知错误');
+          wx.showToast({
+            title: res.data?.message || '提交失败',
+            icon: 'none'
+          });
+        }
+      },
+      fail: (err) => {
+      this.setData({ submitting: false });
+        console.error('提交随访请求失败:', err);
+      wx.showToast({
+          title: '网络错误，请重试',
+        icon: 'none'
+      });
+      }
     });
   },
 
@@ -692,6 +1053,78 @@ Page({
    */
   onHide() {
 
+  },
+
+  /**
+   * 前端还原功能评分量表数据（兜底方案）
+   * 当后端返回的 functionalAssessments 为空时，根据 functionalCodes 从前端配置文件还原
+   * @param {Array<string>} functionalCodes - 量表代码数组，如 ['OKS', 'KOOS-12']
+   * @returns {Array} 还原后的量表数组
+   */
+  restoreFunctionalAssessments(functionalCodes) {
+    try {
+      // 加载前端配置文件
+      const quantificationData = require('../../../assets/db/quantification.js');
+      
+      // 兼容导出格式：如果是 { default: [...] } 这种形式，取 default
+      let scales = Array.isArray(quantificationData) 
+        ? quantificationData 
+        : (Array.isArray(quantificationData?.default) ? quantificationData.default : []);
+      
+      if (!Array.isArray(scales) || scales.length === 0) {
+        console.warn('前端 quantification.js 数据为空或格式错误');
+        return [];
+      }
+      
+      // 创建量表映射表（按 code 索引）
+      const scaleMap = {};
+      scales.forEach(scale => {
+        if (scale.code) {
+          scaleMap[scale.code] = scale;
+        }
+      });
+      
+      // 根据 functionalCodes 还原量表
+      const restoredAssessments = [];
+      functionalCodes.forEach(code => {
+        const scale = scaleMap[code];
+        if (scale && scale.content && scale.content.questions) {
+          restoredAssessments.push({
+            id: scale.code,
+            code: scale.code,
+            title: scale.title || '',
+            description: scale.content.description || '',
+            questions: (scale.content.questions || []).map(q => ({
+              id: `${scale.code}_${q.id}`,
+              originalId: q.id,
+              text: q.text || '',
+              type: q.type || 'radio',
+              // 为选项生成唯一 ID（格式：量表代码_问题ID_分数）
+              // 如果没有 id，使用 score 作为 id 的一部分
+              options: (q.options || []).map((opt, optIdx) => ({
+                id: opt.id || `${scale.code}_${q.id}_${opt.score !== undefined ? opt.score : optIdx}`,
+                score: opt.score,
+                text: opt.text,
+                value: opt.value !== undefined ? opt.value : (opt.score !== undefined ? opt.score : optIdx)
+              })),
+              min: q.min,
+              max: q.max,
+              step: q.step,
+              marks: q.marks,
+              required: true
+            }))
+          });
+          console.log(`✅ 成功还原量表: ${code}, 题目数: ${scale.content.questions.length}`);
+        } else {
+          console.warn(`❌ 未找到量表配置: ${code}`);
+        }
+      });
+      
+      return restoredAssessments;
+    } catch (error) {
+      console.error('前端还原量表数据失败:', error);
+      return [];
+    }
   },
 
   /**

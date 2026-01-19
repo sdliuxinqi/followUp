@@ -4,7 +4,7 @@
   <!-- 个人信息头部 -->
   <view class="profile-header">
     <view class="avatar-section">
-      <view class="avatar">{{profile.name ? profile.name.substring(0,1) : '医'}}</view>
+      <view class="avatar">{{profile.name && profile.name.length > 0 ? profile.name.substring(0,1) : '医'}}</view>
       <view class="user-info">
         <view class="user-name">{{profile.name || '未设置姓名'}}</view>
         <view class="status-badge {{profile.status}}">
@@ -67,7 +67,7 @@
       <view class="upload-hint">支持jpg、png格式，大小不超过5MB</view>
     </view>
     <view wx:else class="preview-area">
-      <image class="preview-image" src="{{editForm.workCardImage}}" mode="aspectFit" />
+      <image class="preview-image" src="{{editForm.workCardImage}}" mode="aspectFit" lazy-load="{{false}}" />
       <view class="image-actions">
         <view class="action-button preview-button" bindtap="previewImage">
           <text class="button-icon">👁</text>

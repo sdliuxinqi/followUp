@@ -19,7 +19,7 @@
 
 - **App ID**: qFY2EfADtBfkzbT7SvDql1Ba-gzGzoHsz
 - **App Key**: NfPKhZiV31u5F0FjffGuKyT6
-- **Server URL**: https://api.tka-followup.top
+- **Server URL**: https://server.tka-followup.top
 
 ## 登录失败解决方法
 
@@ -53,8 +53,8 @@
 
 ## 注意事项
 
-1. 微信小程序上线前，需要在微信公众平台的 **开发设置** 中添加 LeanCloud 的域名到 **request 合法域名**：
-   - https://api.tka-followup.top
+1. 微信小程序上线前，需要在微信公众平台的 **开发设置** 中添加后端 API 的域名到 **request 合法域名**：
+   - https://server.tka-followup.top
 
 2. 开发环境可以在微信小程序开发工具中关闭 **不校验合法域名、web-view（业务域名）、TLS 版本以及 HTTPS 证书** 选项，方便开发测试。
 
